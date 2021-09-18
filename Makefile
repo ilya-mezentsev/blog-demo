@@ -18,6 +18,12 @@ REQUIREMENTS_FILE := $(BACKEND_DIR)/requirements.txt
 
 BACKEND_SOURCE_FOLDER := $(BACKEND_DIR)/blog_demo_backend
 
+DOCKER_COMPOSE_FILE := $(ROOT_DIR)/docker-compose.yaml
+
+PG_SCHEMA_FILE := $(SOURCE_FOLDER)/schema/pg.sql
+
+PROJECT_NAME := blog_demo
+
 ifneq (,$(wildcard ./.env))
 	include .env
 	export
@@ -44,3 +50,9 @@ venv-dir:
 
 calc-lines:
 	( find $(BACKEND_SOURCE_FOLDER) -name '*.py' -print0 | xargs -0 cat ) | wc -l
+
+db-run:
+	docker-compose -f $(DOCKER_COMPOSE_FILE) -p $(PROJECT_NAME) up db
+
+db-reset:
+	cat $(PG_SCHEMA_FILE) | docker-compose -f $(DOCKER_COMPOSE_FILE) -p $(PROJECT_NAME) exec -T db psql -U blog_demo -d blog_demo

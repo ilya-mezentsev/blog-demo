@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:latest
+    ports:
+      - "5555:5432"
+    environment:
+      TZ: Europe/Moscow
+      POSTGRES_USER: blog_demo
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: blog_demo

@@ -3,6 +3,7 @@ from typing import (
     TypeVar,
     Generic,
     Sequence,
+    Optional,
 )
 
 from blog_demo_backend.domains.shared import Id
@@ -13,22 +14,43 @@ __all__ = [
 ]
 
 
-T = TypeVar('T')
+ModelType = TypeVar('ModelType')
+SpecificationType = TypeVar('SpecificationType')
 
 
-class IRepository(Generic[T], metaclass=ABCMeta):
+class IRepository(
+    Generic[
+        ModelType,
+        SpecificationType,
+    ],
+    metaclass=ABCMeta,
+):
 
     @abstractmethod
-    async def create(self, model: T) -> None:
+    async def create(self, model: ModelType) -> None:
         raise NotImplementedError()
 
-    # todo понять насчет фильтров поиска
+    async def read(
+            self,
+            specification: Optional[SpecificationType] = None,
+    ) -> Sequence[ModelType]:
+
+        if specification is not None:
+            return await self._read(specification)
+
+        else:
+            return await self._read_all()
+
     @abstractmethod
-    async def read(self) -> Sequence[T]:
+    async def _read_all(self) -> Sequence[ModelType]:
         raise NotImplementedError()
 
     @abstractmethod
-    async def update(self, model: T) -> None:
+    async def _read(self, specification: SpecificationType) -> Sequence[ModelType]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def update(self, model: ModelType) -> None:
         raise NotImplementedError()
 
     @abstractmethod

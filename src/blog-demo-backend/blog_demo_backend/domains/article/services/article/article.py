@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Any
 
 from blog_demo_backend.domains.article import Article
 from blog_demo_backend.domains.shared import (
@@ -13,11 +13,11 @@ from .settings import ArticleSettings
 
 
 __all__ = [
-    'Article',
+    'ArticleService',
 ]
 
 
-class Service(
+class ArticleService(
     BaseService[
         CreateArticleRequest,
         CreateArticleResponse,
@@ -36,7 +36,8 @@ class Service(
     def __init__(
             self,
             settings: ArticleSettings,
-            repository: IRepository[Article],
+            # fixme Any -> some spec type
+            repository: IRepository[Article, Any],
             permission_service: IPermissionService,
     ) -> None:
 

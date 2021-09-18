@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Any
 
 from blog_demo_backend.domains.article import Comment
 from blog_demo_backend.domains.shared import (
@@ -11,7 +11,12 @@ from blog_demo_backend.domains.shared import (
 from .request import *
 
 
-class Service(
+__all__ = [
+    'CommentService',
+]
+
+
+class CommentService(
     BaseService[
         CreateCommentRequest,
         CreateCommentResponse,
@@ -29,7 +34,8 @@ class Service(
 
     def __init__(
             self,
-            repository: IRepository[Comment],
+            # fixme Any -> some spec type
+            repository: IRepository[Comment, Any],
             permission_service: IPermissionService,
     ) -> None:
 
