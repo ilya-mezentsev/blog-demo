@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Any
 
 from blog_demo_backend.domains.user import User
 from blog_demo_backend.domains.shared import (
@@ -12,11 +12,11 @@ from .request import *
 
 
 __all__ = [
-    'Service',
+    'UserService',
 ]
 
 
-class Service(
+class UserService(
     BaseService[
         CreateUserRequest,
         CreateUserResponse,
@@ -34,7 +34,7 @@ class Service(
 
     def __init__(
             self,
-            repository: IRepository[User],
+            repository: IRepository[User, Any],  # fixme Any -> some spec type
             permission_service: IPermissionService,
     ) -> None:
 
