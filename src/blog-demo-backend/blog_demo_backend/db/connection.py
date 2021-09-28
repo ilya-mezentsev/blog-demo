@@ -23,13 +23,12 @@ async def _connection_context_manager(
         settings: DBSettings,
         engine: AsyncEngine,
 ):
-
     connection: AsyncConnection = await engine.connect()
-    await connection.execute(sqlalchemy.text(f'set search_path to {settings.schema_name}'))
     try:
+        await connection.execute(sqlalchemy.text(f'set search_path to {settings.schema_name}'))
         yield connection
-    finally:
         await connection.commit()
+    finally:
         await connection.close()
 
 
