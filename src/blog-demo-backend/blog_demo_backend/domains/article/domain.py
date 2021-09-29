@@ -18,13 +18,13 @@ class ArticleDomain:
 
     def __init__(
             self,
-            settings: ArticleSettings,
+            article_settings: ArticleSettings,
             connection_fn: DBConnectionFn,
             permission_service: IPermissionService,
     ) -> None:
 
         self.article_service = ArticleService(
-            settings=settings,
+            settings=article_settings,
             repository=ArticleRepository(
                 connection_fn=connection_fn,
             ),

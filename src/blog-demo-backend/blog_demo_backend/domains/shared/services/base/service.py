@@ -5,11 +5,13 @@ from typing import (
     Union,
 )
 
-from blog_demo_backend.domains.shared import (
-    Requester,
+from ..permission import (
     IPermissionService,
     PermissionRequest,
     Operation,
+)
+from ...types import (
+    Requester,
     ServiceError,
     ForbiddenError,
 )
