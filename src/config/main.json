@@ -1,0 +1,24 @@
+{
+  "db": {
+    "dialect": "postgresql",
+    "driver": "asyncpg",
+    "user": "blog_demo",
+    "password": "password",
+    "db_name": "blog_demo",
+    "schema_name": "blog_demo",
+    "host": "localhost",
+    "port": 5555,
+    "echo": false
+  },
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8888
+  },
+  "files": {
+    "articles_root_path": "/tmp/blog_demo"
+  },
+  "permission_service": {
+    "permission_resolver_url": "http://localhost:8887",
+    "request_timeout": 5
+  }
+}
