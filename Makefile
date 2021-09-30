@@ -4,6 +4,7 @@ TARGET_PYTHON_VERSION = python3
 
 SOURCE_FOLDER := $(ROOT_DIR)/src
 BACKEND_DIR := $(SOURCE_FOLDER)/blog-demo-backend
+CONFIG_DIR := $(SOURCE_FOLDER)/config
 
 VENV_DIR := $(BACKEND_DIR)/.venv
 VENV_PIP := $(VENV_DIR)/bin/pip
@@ -18,6 +19,8 @@ REQUIREMENTS_FILE := $(BACKEND_DIR)/requirements.txt
 
 BACKEND_SOURCE_FOLDER := $(BACKEND_DIR)/blog_demo_backend
 
+MAIN_CONFIG_PATH := $(CONFIG_DIR)/main.json
+
 DOCKER_COMPOSE_FILE := $(ROOT_DIR)/docker-compose.yaml
 
 PG_SCHEMA_FILE := $(SOURCE_FOLDER)/schema/pg.sql
@@ -31,7 +34,7 @@ ifneq (,$(wildcard ./.env))
 endif
 
 run:
-	$(VENV_PYTHON) $(ENTRYPOINT_FILE)
+	$(VENV_PYTHON) $(ENTRYPOINT_FILE) --config-path $(MAIN_CONFIG_PATH) --logging-level debug
 
 install: venv-dir
 	$(VENV_PIP) install -r $(REQUIREMENTS_FILE)
