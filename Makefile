@@ -27,12 +27,6 @@ PG_SCHEMA_FILE := $(SOURCE_FOLDER)/schema/pg.sql
 
 PROJECT_NAME := blog_demo
 
-ifneq (,$(wildcard ./.env))
-	include .env
-	export
-	ENV_FILE_PARAM = --env-file .env
-endif
-
 run:
 	$(VENV_PYTHON) $(ENTRYPOINT_FILE) --config-path $(MAIN_CONFIG_PATH) --logging-level debug
 
@@ -59,3 +53,9 @@ db-run:
 
 db-reset:
 	cat $(PG_SCHEMA_FILE) | docker-compose -f $(DOCKER_COMPOSE_FILE) -p $(PROJECT_NAME) exec -T db psql -U blog_demo -d blog_demo
+
+containers-build:
+	docker-compose -f $(DOCKER_COMPOSE_FILE) -p $(PROJECT_NAME) build
+
+containers-run:
+	docker-compose -f $(DOCKER_COMPOSE_FILE) -p $(PROJECT_NAME) up

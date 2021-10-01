@@ -18,7 +18,7 @@
     "articles_root_path": "/tmp/blog_demo"
   },
   "permission_service": {
-    "permission_resolver_url": "http://localhost:8887",
+    "permission_resolver_url": "http://localhost:8080/permissions",
     "request_timeout": 5
   }
 }

@@ -1,8 +1,17 @@
-from typing import Sequence, Any
+from typing import (
+    Sequence,
+    Optional,
+    Union,
+)
 
 from blog_demo_backend.shared import DBConnectionFn
 from blog_demo_backend.domains.shared import IRepository, Id
-from blog_demo_backend.domains.article import Comment
+
+from ..models import Comment
+from ..spec import (
+    CommentByIds,
+    CommentsByArticleId,
+)
 
 
 __all__ = [
@@ -10,8 +19,12 @@ __all__ = [
 ]
 
 
-# fixme Any -> some spec type
-class CommentRepository(IRepository[Comment, Any]):
+class CommentRepository(
+    IRepository[
+        Comment,
+        Union[CommentByIds, CommentsByArticleId],
+    ]
+):
     def __init__(
             self,
             connection_fn: DBConnectionFn,
@@ -22,7 +35,7 @@ class CommentRepository(IRepository[Comment, Any]):
     async def create(self, model: Comment) -> None:
         raise NotImplementedError()
 
-    async def _read(self, specification: Any) -> Sequence[Comment]:
+    async def _read(self, specification: Union[CommentByIds, CommentsByArticleId]) -> Optional[Comment]:
         raise NotImplementedError()
 
     async def _read_all(self) -> Sequence[Comment]:

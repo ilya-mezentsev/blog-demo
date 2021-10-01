@@ -1,6 +1,15 @@
 from dataclasses import dataclass
+from typing import Iterable
 
-from blog_demo_backend.domains.shared import Requester
+from blog_demo_backend.domains.article import Comment
+from blog_demo_backend.domains.shared import (
+    Requester,
+    Id,
+    CreateResponse,
+    ReadResponse,
+    UpdateResponse,
+    DeleteResponse,
+)
 
 
 __all__ = [
@@ -13,39 +22,44 @@ __all__ = [
 
 @dataclass
 class GetCommentsRequest(Requester):
-    ...
+    article_id: Id
 
 
 @dataclass
-class GetCommentsResponse:
-    ...
+class GetCommentsResponse(ReadResponse):
+    comments: Iterable[Comment]
 
 
 @dataclass
 class CreateCommentRequest(Requester):
-    ...
+    article_id: Id
+    author_id: Id
+    text: str
 
 
 @dataclass
-class CreateCommentResponse:
-    ...
+class CreateCommentResponse(CreateResponse):
+    comment: Comment
 
 
 @dataclass
 class UpdateCommentRequest(Requester):
-    ...
+    article_id: Id
+    comment_id: Id
+    text: str
 
 
 @dataclass
-class UpdateCommentResponse:
-    ...
+class UpdateCommentResponse(UpdateResponse):
+    comment: Comment
 
 
 @dataclass
 class DeleteCommentRequest(Requester):
-    ...
+    article_id: Id
+    comment_id: Id
 
 
 @dataclass
-class DeleteCommentResponse:
-    ...
+class DeleteCommentResponse(DeleteResponse):
+    pass

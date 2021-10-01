@@ -1,4 +1,4 @@
-from typing import Union, Any
+from typing import Union
 
 from blog_demo_backend.domains.article import Article
 from blog_demo_backend.domains.shared import (
@@ -6,7 +6,11 @@ from blog_demo_backend.domains.shared import (
     IPermissionService,
     ServiceError,
     BaseService,
+    IReader,
+    ByUserId,
 )
+
+from ...spec import ArticleById
 
 from .request import *
 from .settings import ArticleSettings
@@ -20,13 +24,9 @@ __all__ = [
 class ArticleService(
     BaseService[
         CreateArticleRequest,
-        CreateArticleResponse,
         Union[GetArticlesRequest, GetArticleRequest],
-        Union[GetArticlesResponse, GetArticleResponse],
         UpdateArticleRequest,
-        UpdateArticleResponse,
         DeleteArticleRequest,
-        DeleteArticleResponse,
     ]
 ):
     """
@@ -36,13 +36,14 @@ class ArticleService(
     def __init__(
             self,
             settings: ArticleSettings,
-            # fixme Any -> some spec type
-            repository: IRepository[Article, Any],
+            repository: IRepository[Article, ArticleById],
             permission_service: IPermissionService,
+            user_role_repository: IReader[str, ByUserId],
     ) -> None:
 
         super().__init__(
             permission_service=permission_service,
+            user_role_repository=user_role_repository,
         )
 
         self._settings = settings
@@ -57,6 +58,17 @@ class ArticleService(
                 DeleteArticleRequest,
             ],
     ) -> str:
+
+        if isinstance(request, (UpdateArticleRequest, DeleteArticleRequest)):
+            article = await self._repository.read(ArticleById(
+                article_id=request.article_id,
+            ))
+
+            if (
+                isinstance(article, Article) and
+                article.author_id == request.request_user_id
+            ):
+                return 'own-article'
 
         return 'article'
 

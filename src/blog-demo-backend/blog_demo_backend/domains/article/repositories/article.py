@@ -1,8 +1,13 @@
-from typing import Sequence, Any
+from typing import (
+    Sequence,
+    Optional,
+)
 
 from blog_demo_backend.shared import DBConnectionFn
 from blog_demo_backend.domains.shared import IRepository, Id
-from blog_demo_backend.domains.article import Article
+
+from ..models import Article
+from ..spec import ArticleById
 
 
 __all__ = [
@@ -10,8 +15,7 @@ __all__ = [
 ]
 
 
-# fixme Any -> some spec type
-class ArticleRepository(IRepository[Article, Any]):
+class ArticleRepository(IRepository[Article, ArticleById]):
     def __init__(
             self,
             connection_fn: DBConnectionFn,
@@ -22,7 +26,7 @@ class ArticleRepository(IRepository[Article, Any]):
     async def create(self, model: Article) -> None:
         raise NotImplementedError()
 
-    async def _read(self, specification: Any) -> Sequence[Article]:
+    async def _read(self, specification: ArticleById) -> Optional[Article]:
         raise NotImplementedError()
 
     async def _read_all(self) -> Sequence[Article]:

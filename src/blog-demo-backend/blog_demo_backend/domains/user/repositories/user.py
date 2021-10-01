@@ -1,4 +1,8 @@
-from typing import Sequence, Any
+from typing import (
+    Sequence,
+    Any,
+    Optional,
+)
 
 from blog_demo_backend.shared import DBConnectionFn
 from blog_demo_backend.domains.shared import IRepository, Id
@@ -22,7 +26,7 @@ class UserRepository(IRepository[User, Any]):
     async def create(self, model: User) -> None:
         raise NotImplementedError()
 
-    async def _read(self, specification: Any) -> Sequence[User]:
+    async def _read(self, specification: Any) -> Optional[User]:
         raise NotImplementedError()
 
     async def _read_all(self) -> Sequence[User]:

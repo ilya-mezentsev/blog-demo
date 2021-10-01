@@ -10,10 +10,17 @@ from ..permission import (
     PermissionRequest,
     Operation,
 )
+from ...repositories import IReader
+from ...spec import ByUserId
 from ...types import (
     Requester,
+    Id,
     ServiceError,
     ForbiddenError,
+    CreateResponse,
+    ReadResponse,
+    UpdateResponse,
+    DeleteResponse,
 )
 
 
@@ -23,39 +30,34 @@ __all__ = [
 
 
 CreateRequest = TypeVar('CreateRequest', bound=Requester)
-CreateResponse = TypeVar('CreateResponse')
 ReadRequest = TypeVar('ReadRequest', bound=Requester)
-ReadResponse = TypeVar('ReadResponse')
 UpdateRequest = TypeVar('UpdateRequest', bound=Requester)
-UpdateResponse = TypeVar('UpdateResponse')
 DeleteRequest = TypeVar('DeleteRequest', bound=Requester)
-DeleteResponse = TypeVar('DeleteResponse')
 
 
 class BaseService(
     Generic[
         CreateRequest,
-        CreateResponse,
         ReadRequest,
-        ReadResponse,
         UpdateRequest,
-        UpdateResponse,
         DeleteRequest,
-        DeleteResponse,
     ],
     metaclass=ABCMeta,
 ):
     """
     Базовый сервис для CRUD сервисов.
-    Пока в его задачи входит только прочерить доступ клиента до ресурса
+    Пока в его задачи входит только проверить доступ клиента до ресурса
     """
 
     def __init__(
             self,
+            user_role_repository: IReader[str, ByUserId],
             permission_service: IPermissionService,
     ) -> None:
 
         self._permission_service = permission_service
+
+        self._user_role_repository = user_role_repository
 
     @abstractmethod
     async def _resource_id(
@@ -78,11 +80,11 @@ class BaseService(
     async def create(self, request: CreateRequest) -> Union[CreateResponse, ServiceError]:
 
         if not (await self._permission_service.has_permission(PermissionRequest(
-            role_id=request.role_id,
+            role_id=(await self._get_user_role(request.request_user_id)),
             resource_id=(await self._resource_id(request)),
             operation=Operation.CREATE,
         ))):
-            return ForbiddenError()
+            return ForbiddenError('operation-not-permitted')
 
         return await self._do_create(request)
 
@@ -93,11 +95,11 @@ class BaseService(
     async def read(self, request: ReadRequest) -> Union[ReadResponse, ServiceError]:
 
         if not (await self._permission_service.has_permission(PermissionRequest(
-            role_id=request.role_id,
+            role_id=(await self._get_user_role(request.request_user_id)),
             resource_id=(await self._resource_id(request)),
             operation=Operation.READ,
         ))):
-            return ForbiddenError()
+            return ForbiddenError('operation-not-permitted')
 
         return await self._do_read(request)
 
@@ -108,11 +110,11 @@ class BaseService(
     async def update(self, request: UpdateRequest) -> Union[UpdateResponse, ServiceError]:
 
         if not (await self._permission_service.has_permission(PermissionRequest(
-            role_id=request.role_id,
+            role_id=(await self._get_user_role(request.request_user_id)),
             resource_id=(await self._resource_id(request)),
             operation=Operation.UPDATE,
         ))):
-            return ForbiddenError()
+            return ForbiddenError('operation-not-permitted')
 
         return await self._do_update(request)
 
@@ -123,14 +125,25 @@ class BaseService(
     async def delete(self, request: DeleteRequest) -> Union[DeleteResponse, ServiceError]:
 
         if not (await self._permission_service.has_permission(PermissionRequest(
-            role_id=request.role_id,
+            role_id=(await self._get_user_role(request.request_user_id)),
             resource_id=(await self._resource_id(request)),
             operation=Operation.DELETE,
         ))):
-            return ForbiddenError()
+            return ForbiddenError('operation-not-permitted')
 
         return await self._do_delete(request)
 
     @abstractmethod
     async def _do_delete(self, request: DeleteRequest) -> Union[DeleteResponse, ServiceError]:
         raise NotImplementedError()
+
+    async def _get_user_role(self, user_id: Id) -> str:
+        role_id = await self._user_role_repository.read(ByUserId(
+            user_id=user_id,
+        ))
+
+        if isinstance(role_id, str):
+            return role_id
+
+        else:
+            return 'anonymous'
