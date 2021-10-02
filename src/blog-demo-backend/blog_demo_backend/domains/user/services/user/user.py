@@ -1,14 +1,17 @@
-from typing import Union, Any
+from typing import Union
 
-from blog_demo_backend.domains.user import User
+from blog_demo_backend.domains.user import User, UserSession
 from blog_demo_backend.domains.shared import (
     IRepository,
     IPermissionService,
     ServiceError,
     BaseService,
     IReader,
+    ICreator,
     ByUserId,
 )
+
+from ...spec import UserById
 
 from .request import *
 
@@ -32,7 +35,8 @@ class UserService(
 
     def __init__(
             self,
-            repository: IRepository[User, Any],  # fixme Any -> some spec type
+            user_repository: IRepository[User, UserById],
+            session_repository: ICreator[UserSession],
             permission_service: IPermissionService,
             user_role_repository: IReader[str, ByUserId],
     ) -> None:
@@ -42,7 +46,8 @@ class UserService(
             user_role_repository=user_role_repository,
         )
 
-        self._repository = repository
+        self._user_repository = user_repository
+        self._session_repository = session_repository
 
     async def _resource_id(self, request: Union[
         CreateUserRequest,

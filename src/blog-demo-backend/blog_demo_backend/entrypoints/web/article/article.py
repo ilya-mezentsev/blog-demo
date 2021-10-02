@@ -1,3 +1,9 @@
+from typing import (
+    Optional,
+    Iterable,
+    Any,
+)
+
 from aiohttp import web, web_request
 
 from blog_demo_backend.domains.shared import InvalidRequest
@@ -35,8 +41,10 @@ class ArticleEntrypoint:
 
         self._article_domain = article_domain
 
-    def make_entrypoint(self) -> web.Application:
-        app = web.Application()
+    def make_app(self, middlewares: Iterable[Any]) -> web.Application:
+        app = web.Application(
+            middlewares=middlewares,
+        )
 
         app.add_routes([
             web.post(r'', self._create_article),
@@ -102,6 +110,7 @@ class ArticleEntrypoint:
         title = data.get('title', '')
         description = data.get('description', '')
 
+        content: Optional[bytes]
         if isinstance(file_fields, web_request.FileField):
             content = file_fields.file.read()
         else:

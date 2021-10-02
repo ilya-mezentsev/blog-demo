@@ -32,6 +32,7 @@ class GetUserResponse(ReadResponse):
 @dataclass
 class CreateUserRequest(Requester):
     nickname: str
+    password: str
 
 
 @dataclass

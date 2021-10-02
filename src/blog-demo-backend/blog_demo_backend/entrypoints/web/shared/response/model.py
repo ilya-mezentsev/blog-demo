@@ -16,3 +16,6 @@ class ResponseModel:
     http_status: int
     body: Optional[Mapping[str, Any]] = None
     headers: Optional[Mapping[str, str]] = None
+
+    # Пока мпинга str -> str достаточно
+    cookies: Optional[Mapping[str, str]] = None

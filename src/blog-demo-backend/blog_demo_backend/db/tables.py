@@ -24,6 +24,13 @@ Table(
 )
 
 Table(
+    'user_token', blog_tables,
+    Column('id', Integer(), autoincrement=True),
+    Column('user_id', VARCHAR(36), ForeignKey('user.uuid')),
+    Column('token', VARCHAR(32), unique=True),
+)
+
+Table(
     'article', blog_tables,
     Column('id', Integer(), autoincrement=True),
     Column('uuid', VARCHAR(36), unique=True, primary_key=True),

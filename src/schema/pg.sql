@@ -17,6 +17,14 @@ CREATE TABLE blog_demo.user (
     UNIQUE (nickname)
 );
 
+DROP TABLE IF EXISTS blog_demo.user_token;
+CREATE TABLE blog_demo.user_token(
+    id SERIAL,
+    user_id VARCHAR(36) REFERENCES blog_demo.user(uuid) ON DELETE CASCADE,
+    token VARCHAR(32) NOT NULL,
+    UNIQUE (token)
+);
+
 DROP TABLE IF EXISTS blog_demo.article CASCADE;
 CREATE TABLE blog_demo.article (
     id SERIAL,

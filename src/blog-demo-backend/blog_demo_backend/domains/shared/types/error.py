@@ -6,6 +6,7 @@ __all__ = [
     'ServiceError',
     'ForbiddenError',
     'InvalidRequest',
+    'NotFound',
 ]
 
 
@@ -21,4 +22,9 @@ class ForbiddenError(ServiceError):
 
 @dataclass
 class InvalidRequest(ServiceError):
+    pass
+
+
+@dataclass
+class NotFound(ServiceError):
     pass

@@ -7,6 +7,7 @@ from typing import (
 
 from aiohttp import web
 
+from blog_demo_backend.domains.user import CreateSessionResponse
 from blog_demo_backend.domains.shared import (
     CreateResponse,
     ReadResponse,
@@ -15,6 +16,7 @@ from blog_demo_backend.domains.shared import (
     ServiceError,
     ForbiddenError,
     InvalidRequest,
+    NotFound,
 )
 
 from .model import ResponseModel
@@ -22,6 +24,7 @@ from .model import ResponseModel
 
 __all__ = [
     'from_response',
+    'session_response',
     'server_error',
     'unauthorized_error',
 ]
@@ -77,13 +80,33 @@ def _from_error(response: ServiceError) -> ResponseModel:
     elif isinstance(response, InvalidRequest):
         status_code = web.HTTPBadRequest.status_code
 
+    elif isinstance(response, NotFound):
+        status_code = web.HTTPNotFound.status_code
+
     else:
-        status_code = web.HTTPServerError.status_code
+        raise RuntimeError(f'Unknown error response type: {type(response)!r}')
 
     return _make_error(
         status_code=status_code,
         description=response.description,
     )
+
+
+def session_response(response: Union[
+    CreateSessionResponse,
+    ServiceError,
+]) -> ResponseModel:
+
+    if isinstance(response, CreateSessionResponse):
+        return ResponseModel(
+            http_status=web.HTTPNoContent.status_code,
+            cookies={
+                'BLOG_DEMO_USER_TOKEN': response.session.token,
+            },
+        )
+
+    else:
+        return _from_error(response)
 
 
 def unauthorized_error(description: str) -> ResponseModel:
