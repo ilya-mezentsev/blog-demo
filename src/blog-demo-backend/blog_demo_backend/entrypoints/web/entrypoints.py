@@ -6,7 +6,7 @@ from .article import ArticleEntrypoint
 from .user import UserEntrypoint
 from .settings import WebEntrypointSettings
 
-from .shared import exception_handler
+from .shared import exception_handler, user_id_from_cookie
 
 
 __all__ = [
@@ -39,6 +39,7 @@ def _make_app(
 
     app = web.Application(
         middlewares=[
+            user_id_from_cookie,
             exception_handler,
         ],
     )

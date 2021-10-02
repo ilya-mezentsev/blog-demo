@@ -11,14 +11,14 @@ __all__ = [
 
 @dataclass
 class ServiceError:
-    pass
+    description: Optional[str] = None
 
 
 @dataclass
 class ForbiddenError(ServiceError):
-    description: Optional[str] = None
+    pass
 
 
 @dataclass
 class InvalidRequest(ServiceError):
-    description: Optional[str] = None
+    pass

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from .id import Id
+
 
 __all__ = [
     'Requester',
@@ -8,4 +10,4 @@ __all__ = [
 
 @dataclass
 class Requester:
-    role_id: str
+    request_user_id: Id

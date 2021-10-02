@@ -1,4 +1,5 @@
 import logging
+from typing import Mapping
 
 import aiohttp
 
@@ -11,11 +12,11 @@ from .types import (
 
 
 __all__ = [
-    'ServiceService',
+    'PermissionService',
 ]
 
 
-class ServiceService(IPermissionService):
+class PermissionService(IPermissionService):
     def __init__(
             self,
             settings: PermissionSettings,
@@ -23,14 +24,12 @@ class ServiceService(IPermissionService):
 
         self._settings = settings
 
-    async def has_permission(self, request: 'PermissionRequest') -> bool:
+    async def has_permission(self, request: PermissionRequest) -> bool:
         async with aiohttp.ClientSession() as session:
             try:
                 async with session.get(
                         url=self._settings.permission_resolver_url,
-                        headers={
-                            'X-RM-Auth-Token': self._settings.auth_token,
-                        },
+                        params=self._make_params(request),
                         timeout=self._settings.request_timeout,
                 ) as response:
 
@@ -49,3 +48,15 @@ class ServiceService(IPermissionService):
                 приведет к полной недоступности функционала бекенда.
                 """
                 return True
+
+    @staticmethod
+    def _make_params(request: PermissionRequest) -> Mapping[str, str]:
+        params = {
+            'roleId': request.role_id,
+            'resourceId': request.resource_id,
+            'operation': request.operation.value,
+        }
+        if request.version_id is not None:
+            params['versionId'] = request.version_id
+
+        return params

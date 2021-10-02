@@ -48,7 +48,6 @@ class Config:
     def permission_settings(self) -> PermissionSettings:
         return PermissionSettings(
             permission_resolver_url=self._config_dict['permission_service']['permission_resolver_url'],
-            auth_token=os.environ['PERMISSION_SERVICE_AUTH_TOKEN'],
             request_timeout=self._config_dict['permission_service']['request_timeout'],
         )
 

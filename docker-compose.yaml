@@ -10,3 +10,12 @@ services:
       POSTGRES_USER: blog_demo
       POSTGRES_PASSWORD: password
       POSTGRES_DB: blog_demo
+
+  permission_service:
+    tty: false
+    build: ./src/permission_service
+    command: sh -c "make backend-run-minimal"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src/config:/etc/blog-demo/

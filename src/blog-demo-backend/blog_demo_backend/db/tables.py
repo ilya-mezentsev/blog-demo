@@ -6,6 +6,7 @@ from sqlalchemy import (  # type: ignore
     Integer,
     VARCHAR,
     DateTime,
+    Enum,
     text,
 )
 
@@ -16,6 +17,7 @@ Table(
     'user', blog_tables,
     Column('id', Integer(), autoincrement=True),
     Column('uuid', VARCHAR(36), unique=True, primary_key=True),
+    Column('role', Enum('user', 'moderator'), nullable=False),
     Column('nickname', VARCHAR(64), unique=True, nullable=False),
     Column('created', DateTime, nullable=False, server_default=text('NOW()')),
     Column('modified', DateTime, nullable=False, server_default=text('NOW()')),

@@ -1,6 +1,14 @@
 from dataclasses import dataclass
 
-from blog_demo_backend.domains.shared import Requester
+from blog_demo_backend.domains.user import User
+from blog_demo_backend.domains.shared import (
+    Requester,
+    Id,
+    CreateResponse,
+    ReadResponse,
+    UpdateResponse,
+    DeleteResponse,
+)
 
 
 __all__ = [
@@ -13,39 +21,40 @@ __all__ = [
 
 @dataclass
 class GetUserRequest(Requester):
-    ...
+    user_id: Id
 
 
 @dataclass
-class GetUserResponse:
-    ...
+class GetUserResponse(ReadResponse):
+    user: User
 
 
 @dataclass
 class CreateUserRequest(Requester):
-    ...
+    nickname: str
 
 
 @dataclass
-class CreateUserResponse:
-    ...
+class CreateUserResponse(CreateResponse):
+    user: User
 
 
 @dataclass
 class UpdateUserRequest(Requester):
-    ...
+    user_id: Id
+    nickname: str
 
 
 @dataclass
-class UpdateUserResponse:
-    ...
+class UpdateUserResponse(UpdateResponse):
+    user: User
 
 
 @dataclass
 class DeleteUserRequest(Requester):
-    ...
+    user_id: Id
 
 
 @dataclass
-class DeleteUserResponse:
-    ...
+class DeleteUserResponse(DeleteResponse):
+    pass

@@ -6,6 +6,8 @@ from blog_demo_backend.domains.shared import (
     IPermissionService,
     ServiceError,
     BaseService,
+    IReader,
+    ByUserId,
 )
 
 from .request import *
@@ -19,13 +21,9 @@ __all__ = [
 class UserService(
     BaseService[
         CreateUserRequest,
-        CreateUserResponse,
         GetUserRequest,
-        GetUserResponse,
         UpdateUserRequest,
-        UpdateUserResponse,
         DeleteUserRequest,
-        DeleteUserResponse,
     ]
 ):
     """
@@ -36,10 +34,12 @@ class UserService(
             self,
             repository: IRepository[User, Any],  # fixme Any -> some spec type
             permission_service: IPermissionService,
+            user_role_repository: IReader[str, ByUserId],
     ) -> None:
 
         super().__init__(
             permission_service=permission_service,
+            user_role_repository=user_role_repository,
         )
 
         self._repository = repository
@@ -51,7 +51,18 @@ class UserService(
         DeleteUserRequest,
     ]) -> str:
 
-        raise NotImplementedError()
+        if isinstance(
+            request,
+            (
+                GetUserRequest,
+                UpdateUserRequest,
+                DeleteUserRequest,
+            ),
+        ):
+            if request.user_id == request.request_user_id:
+                return 'self-user'
+
+        return 'user'
 
     async def _do_create(
             self,
