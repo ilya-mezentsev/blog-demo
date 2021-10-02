@@ -1,6 +1,5 @@
 from typing import (
     Sequence,
-    Any,
     Optional,
 )
 
@@ -8,14 +7,20 @@ from blog_demo_backend.shared import DBConnectionFn
 from blog_demo_backend.domains.shared import IRepository, Id
 from blog_demo_backend.domains.user import User
 
+from ..spec import UserById
+
 
 __all__ = [
     'UserRepository',
 ]
 
 
-# fixme Any -> some spec type
-class UserRepository(IRepository[User, Any]):
+class UserRepository(
+    IRepository[
+        User,
+        UserById,
+    ]
+):
     def __init__(
             self,
             connection_fn: DBConnectionFn,
@@ -26,7 +31,7 @@ class UserRepository(IRepository[User, Any]):
     async def create(self, model: User) -> None:
         raise NotImplementedError()
 
-    async def _read(self, specification: Any) -> Optional[User]:
+    async def _read(self, specification: UserById) -> Optional[User]:
         raise NotImplementedError()
 
     async def _read_all(self) -> Sequence[User]:

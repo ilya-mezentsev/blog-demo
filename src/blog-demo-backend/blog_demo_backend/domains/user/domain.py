@@ -6,7 +6,9 @@ from blog_demo_backend.domains.shared import (
 )
 from blog_demo_backend.domains.user import (
     UserService,
+    UserSessionService,
     UserRepository,
+    UserSessionRepository,
 )
 
 
@@ -24,10 +26,19 @@ class UserDomain:
             user_role_repository: IReader[str, ByUserId],
     ) -> None:
 
+        session_repository = UserSessionRepository(
+            connection_fn=connection_fn,
+        )
+
         self.user_service = UserService(
-            repository=UserRepository(
+            user_repository=UserRepository(
                 connection_fn=connection_fn,
             ),
+            session_repository=session_repository,
             permission_service=permission_service,
             user_role_repository=user_role_repository,
+        )
+
+        self.session_service = UserSessionService(
+            session_repository=session_repository,
         )
