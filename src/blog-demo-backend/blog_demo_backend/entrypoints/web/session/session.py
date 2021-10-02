@@ -2,7 +2,11 @@ from typing import Iterable, Any
 
 from aiohttp import web
 
-from blog_demo_backend.domains.user import UserDomain, CreateSessionRequest
+from blog_demo_backend.domains.user import (
+    UserDomain,
+    CreateSessionRequest,
+    CreateUserRequest,
+)
 
 from ..shared import (
     from_response,
@@ -32,12 +36,13 @@ class UserSessionEntrypoint:
         )
 
         app.add_routes([
-            web.post(r'', self.create_session),
+            web.post(r'', self._create_session),
+            web.post(r'/user', self._create_user),
         ])
 
         return app
 
-    async def create_session(self, request: web.Request) -> web.Response:
+    async def _create_session(self, request: web.Request) -> web.Response:
         request_dict, invalid = await read_json(request)
         if invalid is not None:
             return make_json_response(from_response(invalid))
@@ -49,3 +54,16 @@ class UserSessionEntrypoint:
         ))
 
         return make_json_response(session_response(response_model))
+
+    async def _create_user(self, request: web.Request) -> web.Response:
+        request_dict, invalid = await read_json(request)
+        if invalid is not None:
+            return make_json_response(from_response(invalid))
+
+        assert request_dict is not None
+        response_model = await self._user_domain.session_service.create_user(CreateUserRequest(
+            nickname=request_dict.get('nickname', ''),
+            password=request_dict.get('password', ''),
+        ))
+
+        return make_json_response(from_response(response_model))

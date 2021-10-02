@@ -1,17 +1,18 @@
+import datetime
 from typing import Union
 
-from blog_demo_backend.domains.user import User, UserSession
+from blog_demo_backend.domains.user import User
 from blog_demo_backend.domains.shared import (
     IRepository,
     IPermissionService,
     ServiceError,
+    NotFound,
     BaseService,
     IReader,
-    ICreator,
     ByUserId,
 )
 
-from ...spec import UserById
+from ...spec import UserById, UserByNickname
 
 from .request import *
 
@@ -23,7 +24,7 @@ __all__ = [
 
 class UserService(
     BaseService[
-        CreateUserRequest,
+        CreateUserRequestStub,
         GetUserRequest,
         UpdateUserRequest,
         DeleteUserRequest,
@@ -35,8 +36,7 @@ class UserService(
 
     def __init__(
             self,
-            user_repository: IRepository[User, UserById],
-            session_repository: ICreator[UserSession],
+            user_repository: IRepository[User, Union[UserById, UserByNickname]],
             permission_service: IPermissionService,
             user_role_repository: IReader[str, ByUserId],
     ) -> None:
@@ -47,10 +47,9 @@ class UserService(
         )
 
         self._user_repository = user_repository
-        self._session_repository = session_repository
 
     async def _resource_id(self, request: Union[
-        CreateUserRequest,
+        CreateUserRequestStub,
         GetUserRequest,
         UpdateUserRequest,
         DeleteUserRequest,
@@ -71,9 +70,8 @@ class UserService(
 
     async def _do_create(
             self,
-            request: CreateUserRequest,
-    ) -> Union[CreateUserResponse, ServiceError]:
-
+            request: CreateUserRequestStub,
+    ) -> Union[CreateUserResponseStub, ServiceError]:
         raise NotImplementedError()
 
     async def _do_read(
@@ -81,18 +79,42 @@ class UserService(
             request: GetUserRequest,
     ) -> Union[GetUserResponse, ServiceError]:
 
-        raise NotImplementedError()
+        user = await self._user_repository.read(UserById(
+            user_id=request.user_id,
+        ))
+
+        if isinstance(user, User):
+            return GetUserResponse(user)
+        else:
+            return NotFound('user-not-found-by-id')
 
     async def _do_update(
             self,
             request: UpdateUserRequest,
     ) -> Union[UpdateUserResponse, ServiceError]:
 
-        raise NotImplementedError()
+        user = await self._user_repository.read(UserById(
+            user_id=request.user_id,
+        ))
+        if isinstance(user, User):
+            user.nickname = request.nickname
+            user.modified = datetime.datetime.now()
+
+            await self._user_repository.create(user)
+            return UpdateUserResponse(user)
+        else:
+            return NotFound('user-not-found-by-id')
 
     async def _do_delete(
             self,
             request: DeleteUserRequest,
     ) -> Union[DeleteUserResponse, ServiceError]:
 
-        raise NotImplementedError()
+        user = await self._user_repository.read(UserById(
+            user_id=request.user_id,
+        ))
+        if user is None:
+            return NotFound('user-not-found-by-id')
+
+        await self._user_repository.delete(request.user_id)
+        return DeleteUserResponse()
