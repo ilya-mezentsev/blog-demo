@@ -13,4 +13,6 @@ __all__ = [
 class User:
     id: Id
     nickname: str
+    role: str
     created: datetime.datetime
+    modified: datetime.datetime
