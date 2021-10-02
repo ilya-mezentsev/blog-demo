@@ -1,11 +1,8 @@
-from typing import Iterable, Any
-
 from aiohttp import web
 
 from blog_demo_backend.domains.user import (
     UserDomain,
     CreateSessionRequest,
-    CreateUserRequest,
 )
 
 from ..shared import (
@@ -30,14 +27,11 @@ class UserSessionEntrypoint:
 
         self._user_domain = user_domain
 
-    def make_app(self, middlewares: Iterable[Any]) -> web.Application:
-        app = web.Application(
-            middlewares=middlewares,
-        )
+    def make_app(self) -> web.Application:
+        app = web.Application()
 
         app.add_routes([
             web.post(r'', self._create_session),
-            web.post(r'/user', self._create_user),
         ])
 
         return app
@@ -54,16 +48,3 @@ class UserSessionEntrypoint:
         ))
 
         return make_json_response(session_response(response_model))
-
-    async def _create_user(self, request: web.Request) -> web.Response:
-        request_dict, invalid = await read_json(request)
-        if invalid is not None:
-            return make_json_response(from_response(invalid))
-
-        assert request_dict is not None
-        response_model = await self._user_domain.session_service.create_user(CreateUserRequest(
-            nickname=request_dict.get('nickname', ''),
-            password=request_dict.get('password', ''),
-        ))
-
-        return make_json_response(from_response(response_model))

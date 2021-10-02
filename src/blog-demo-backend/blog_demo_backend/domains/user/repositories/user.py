@@ -1,7 +1,7 @@
 from typing import (
-    Sequence,
-    Optional,
     Union,
+    Mapping,
+    Any,
 )
 
 import sqlalchemy as sa  # type: ignore
@@ -33,72 +33,54 @@ class UserRepository(
             connection_fn: DBConnectionFn,
     ) -> None:
 
-        self._connect = connection_fn
+        self._connection_fn = connection_fn
 
-    async def create(self, model: User) -> None:
+    def _make_create_mapping(self, model: User) -> Mapping[sa.Column, Any]:
+        return {
+            user_table.c.uuid: model.id,
+            user_table.c.role: model.role,
+            user_table.c.nickname: model.nickname,
+            user_table.c.created: model.created,
+            user_table.c.modified: model.modified,
+        }
 
-        query = user_table. \
-            insert(). \
-            values({
-                user_table.c.uuid: model.id,
-                user_table.c.role: model.role,
-                user_table.c.nickname: model.nickname,
-                user_table.c.created: model.created,
-                user_table.c.modified: model.modified,
-            })
+    def _make_where_for_read(self, specification: Union[UserById, UserByNickname]) -> sa.sql.ColumnElement:
+        if isinstance(specification, UserById):
+            return user_table.c.uuid == specification.user_id
 
-        async with self._connect() as conn:
-            await conn.execute(query)
+        elif isinstance(specification, UserByNickname):
+            return user_table.c.nickname == specification.nickname
 
-    async def _read(self, specification: Union[UserById, UserByNickname]) -> Optional[User]:
-
-        query = sa. \
-            select([user_table]). \
-            where(sa.and_(
-                user_table.c.uuid == specification.user_id
-                if isinstance(specification, UserById) else sa.or_(),
-
-                user_table.c.nickname == specification.nickname
-                if isinstance(specification, UserByNickname) else sa.or_(),
-            ))
-
-        async with self._connect() as conn:
-            user_result = await conn.execute(query)
-            user_row = user_result.fetchone()
-
-        if user_row:
-            return User(
-                id=user_row['uuid'],
-                role=user_row['role'],
-                nickname=user_row['nickname'],
-                created=user_row['created'],
-                modified=user_row['modified'],
-            )
         else:
-            return None
+            raise RuntimeError(
+                f'Unknown specification type: {type(specification)!r}')
 
-    async def _read_all(self) -> Sequence[User]:
-        raise NotImplementedError()
+    def _model_from_row(self, user_row: Mapping[str, Any]) -> User:
+        return User(
+            id=user_row['uuid'],
+            role=user_row['role'],
+            nickname=user_row['nickname'],
+            created=user_row['created'],
+            modified=user_row['modified'],
+        )
 
-    async def update(self, model: User) -> None:
+    def _make_update_mapping(self, model: User) -> Mapping[sa.Column, Any]:
+        return {
+            user_table.c.role: model.role,
+            user_table.c.nickname: model.nickname,
+            user_table.c.modified: model.modified,
+        }
 
-        query = user_table. \
-            update(). \
-            values({
-                user_table.c.role: model.role,
-                user_table.c.nickname: model.nickname,
-                user_table.c.modified: model.modified,
-            }). \
-            where(user_table.c.uuid == model.id)
+    def _make_where_for_update(self, model: User) -> sa.sql.ColumnElement:
+        return user_table.c.uuid == model.id
 
-        async with self._connect() as conn:
-            await conn.execute(query)
+    def _make_where_for_delete(self, model_id: Id) -> sa.sql.ColumnElement:
+        return user_table.c.uuid == model_id
 
-    async def delete(self, model_id: Id) -> None:
+    @property
+    def _table(self) -> sa.Table:
+        return user_table
 
-        query = user_table. \
-            delete(). \
-            where(user_table.c.uuid == model_id)
-
-        async with self._connect() as conn:
-            await conn.execute(query)
+    @property
+    def _connect(self) -> DBConnectionFn:
+        return self._connection_fn

@@ -33,7 +33,6 @@ class GetCommentsResponse(ReadResponse):
 @dataclass
 class CreateCommentRequest(Requester):
     article_id: Id
-    author_id: Id
     text: str
 
 

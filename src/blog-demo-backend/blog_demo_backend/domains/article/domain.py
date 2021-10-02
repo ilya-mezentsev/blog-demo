@@ -28,19 +28,22 @@ class ArticleDomain:
             user_role_repository: IReader[str, ByUserId],
     ) -> None:
 
+        article_repository = ArticleRepository(
+            connection_fn=connection_fn,
+        )
+
         self.article_service = ArticleService(
             settings=article_settings,
-            repository=ArticleRepository(
-                connection_fn=connection_fn,
-            ),
+            article_repository=article_repository,
             permission_service=permission_service,
             user_role_repository=user_role_repository,
         )
 
         self.comment_service = CommentService(
-            repository=CommentRepository(
+            comment_repository=CommentRepository(
                 connection_fn=connection_fn,
             ),
+            article_repository=article_repository,
             permission_service=permission_service,
             user_role_repository=user_role_repository,
         )

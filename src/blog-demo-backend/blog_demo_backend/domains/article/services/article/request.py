@@ -47,7 +47,6 @@ class GetArticleResponse(ReadResponse):
 
 @dataclass
 class CreateArticleRequest(Requester):
-    author_id: Id
     title: str
     description: str
     content: bytes
