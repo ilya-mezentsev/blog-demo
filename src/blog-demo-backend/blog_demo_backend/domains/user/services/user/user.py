@@ -1,22 +1,18 @@
 import datetime
 from typing import Union
-from uuid import uuid4
 
-from blog_demo_backend.domains.user import User, UserSession
+from blog_demo_backend.domains.user import User
 from blog_demo_backend.domains.shared import (
     IRepository,
     IPermissionService,
     ServiceError,
-    InvalidRequest,
     NotFound,
     BaseService,
     IReader,
-    ICreator,
     ByUserId,
 )
 
 from ...spec import UserById, UserByNickname
-from ...shared import create_hash
 
 from .request import *
 
@@ -28,7 +24,7 @@ __all__ = [
 
 class UserService(
     BaseService[
-        CreateUserRequest,
+        CreateUserRequestStub,
         GetUserRequest,
         UpdateUserRequest,
         DeleteUserRequest,
@@ -41,7 +37,6 @@ class UserService(
     def __init__(
             self,
             user_repository: IRepository[User, Union[UserById, UserByNickname]],
-            session_repository: ICreator[UserSession],
             permission_service: IPermissionService,
             user_role_repository: IReader[str, ByUserId],
     ) -> None:
@@ -52,10 +47,9 @@ class UserService(
         )
 
         self._user_repository = user_repository
-        self._session_repository = session_repository
 
     async def _resource_id(self, request: Union[
-        CreateUserRequest,
+        CreateUserRequestStub,
         GetUserRequest,
         UpdateUserRequest,
         DeleteUserRequest,
@@ -76,34 +70,9 @@ class UserService(
 
     async def _do_create(
             self,
-            request: CreateUserRequest,
-    ) -> Union[CreateUserResponse, ServiceError]:
-
-        user_with_nickname = await self._user_repository.read(UserByNickname(
-            nickname=request.nickname,
-        ))
-        if user_with_nickname is not None:
-            return InvalidRequest(
-                description='user-already-exists',
-            )
-
-        model = User(
-            id=uuid4().hex,
-            nickname=request.nickname,
-            role='user',
-            created=datetime.datetime.now(),
-            modified=datetime.datetime.now(),
-        )
-        await self._user_repository.create(model)
-        await self._session_repository.create(UserSession(
-            user_id=model.id,
-            token=create_hash(
-                nickname=model.nickname,
-                password=request.password,
-            ),
-        ))
-
-        return CreateUserResponse(model)
+            request: CreateUserRequestStub,
+    ) -> Union[CreateUserResponseStub, ServiceError]:
+        raise NotImplementedError()
 
     async def _do_read(
             self,

@@ -13,7 +13,7 @@ from blog_demo_backend.domains.shared import (
 
 __all__ = [
     'GetUserRequest', 'GetUserResponse',
-    'CreateUserRequest', 'CreateUserResponse',
+    'CreateUserRequestStub', 'CreateUserResponseStub',
     'UpdateUserRequest', 'UpdateUserResponse',
     'DeleteUserRequest', 'DeleteUserResponse',
 ]
@@ -30,14 +30,13 @@ class GetUserResponse(ReadResponse):
 
 
 @dataclass
-class CreateUserRequest(Requester):
-    nickname: str
-    password: str
+class CreateUserRequestStub(Requester):
+    pass
 
 
 @dataclass
-class CreateUserResponse(CreateResponse):
-    user: User
+class CreateUserResponseStub(CreateResponse):
+    pass
 
 
 @dataclass

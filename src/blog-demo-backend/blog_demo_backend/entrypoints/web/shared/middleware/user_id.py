@@ -13,34 +13,28 @@ __all__ = [
 ]
 
 
-def user_id_from_cookie(
-        get_session_by_token: Callable[[str], Awaitable[Optional[UserSession]]]
-):
-    return partial(
-        _user_id_from_cookie,
-        get_session_by_token=get_session_by_token,
-    )
+def user_id_from_cookie(get_session_by_token: Callable[[str], Awaitable[Optional[UserSession]]]):
 
+    @web.middleware
+    async def _user_id_from_cookie(
+            request: web.Request,
+            handler: Callable[[web.Request], Awaitable[web.StreamResponse]],
+    ) -> web.StreamResponse:
 
-@web.middleware
-async def _user_id_from_cookie(
-        request: web.Request,
-        handler: Callable[[web.Request], Awaitable[web.StreamResponse]],
-        get_session_by_token: Callable[[str], Awaitable[Optional[UserSession]]],
-) -> web.StreamResponse:
+        user_token = request.cookies.get('BLOG_DEMO_USER_TOKEN', '')
+        session = await get_session_by_token(user_token)
 
-    user_token = request.cookies.get('BLOG_DEMO_USER_TOKEN', '')
-    session = await get_session_by_token(user_token)
+        if session is not None:
+            request['context'] = {
+                **request.get('context', {}),
+                'user_id': session.user_id,
+            }
 
-    if session is not None:
-        request['context'] = {
-            **request.get('context', {}),
-            'user_id': session.user_id,
-        }
+            return await handler(request)
 
-        return await handler(request)
+        else:
+            return make_json_response(unauthorized_error(
+                description='auth-cookie-missed',
+            ))
 
-    else:
-        return make_json_response(unauthorized_error(
-            description='auth-cookie-missed',
-        ))
+    return _user_id_from_cookie

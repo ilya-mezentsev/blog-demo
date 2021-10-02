@@ -7,13 +7,10 @@ import sqlalchemy as sa  # type: ignore
 
 from blog_demo_backend.db import get_table
 from blog_demo_backend.shared import DBConnectionFn
-from blog_demo_backend.domains.shared import (
-    ICreator,
-    IReader,
-)
 from blog_demo_backend.domains.user import UserSession
 
 from ..spec import SessionByHash
+from ..types import IUserSessionRepository
 
 
 __all__ = [
@@ -24,10 +21,7 @@ __all__ = [
 user_token_table = get_table('user_token')
 
 
-class UserSessionRepository(
-    ICreator[UserSession],
-    IReader[UserSession, SessionByHash]
-):
+class UserSessionRepository(IUserSessionRepository):
     def __init__(
             self,
             connection_fn: DBConnectionFn,
@@ -48,7 +42,7 @@ class UserSessionRepository(
 
         query = sa. \
             select([user_token_table]). \
-            where(user_token_table.c.hash == specification.hash)
+            where(user_token_table.c.token == specification.hash)
 
         async with self._connect() as conn:
             session_result = await conn.execute(query)
