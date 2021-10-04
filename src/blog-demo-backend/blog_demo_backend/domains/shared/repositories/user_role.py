@@ -1,4 +1,4 @@
-from typing import Sequence, Optional
+from typing import Mapping, Any
 
 import sqlalchemy as sa  # type: ignore
 
@@ -26,20 +26,16 @@ class UserRoleRepository(IReader[str, ByUserId]):
 
         self._connection_fn = connection_fn
 
-    async def _read(self, specification: ByUserId) -> Optional[str]:
+    def _make_where_for_read(self, specification: ByUserId) -> sa.sql.ColumnElement:
+        return user_table.c.uuid == specification.user_id
 
-        query = sa. \
-            select([user_table.c.role]). \
-            where(user_table.c.uuid == specification.user_id)
+    def _model_from_row(self, user_row: Mapping[str, Any]) -> str:
+        return user_row['role']
 
-        async with self._connection_fn() as conn:
-            user_result = await conn.execute(query)
-            user_row = user_result.fetchone()
+    @property
+    def _table(self) -> sa.Table:
+        return user_table
 
-        if user_row:
-            return user_row['role']
-        else:
-            return None
-
-    async def _read_all(self) -> Sequence[str]:
-        raise NotImplementedError()
+    @property
+    def _connect(self) -> DBConnectionFn:
+        return self._connection_fn

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from .id import Id
 
@@ -10,4 +11,4 @@ __all__ = [
 
 @dataclass
 class Requester:
-    request_user_id: Id
+    request_user_id: Optional[Id]

@@ -6,7 +6,7 @@ __all__ = [
 ]
 
 
-def create_hash(nickname: str, password: str) -> str:
+def create_hash(password: str) -> str:
     return hashlib. \
-        md5(f'{nickname}:{password}'.encode('utf-8')). \
+        md5(f'{password}:{password}'.encode('utf-8')). \
         hexdigest()

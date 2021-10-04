@@ -1,6 +1,6 @@
 from typing import (
-    Sequence,
-    Optional,
+    Mapping,
+    Any,
 )
 
 import sqlalchemy as sa  # type: ignore
@@ -27,34 +27,27 @@ class UserSessionRepository(IUserSessionRepository):
             connection_fn: DBConnectionFn,
     ) -> None:
 
-        self._connect = connection_fn
+        self._connection_fn = connection_fn
 
-    async def create(self, model: UserSession) -> None:
-        query = user_token_table.insert().values({
-            'user_id': model.user_id,
-            'token': model.token,
-        })
+    def _make_create_mapping(self, model: UserSession) -> Mapping[sa.Column, Any]:
+        return {
+            user_token_table.c.user_id: model.user_id,
+            user_token_table.c.token: model.token,
+        }
 
-        async with self._connect() as conn:
-            await conn.execute(query)
+    def _make_where_for_read(self, specification: SessionByHash) -> sa.sql.ColumnElement:
+        return user_token_table.c.token == specification.hash
 
-    async def _read(self, specification: SessionByHash) -> Optional[UserSession]:
+    def _model_from_row(self, session_row: Mapping[str, Any]) -> UserSession:
+        return UserSession(
+            user_id=session_row['user_id'],
+            token=session_row['token'],
+        )
 
-        query = sa. \
-            select([user_token_table]). \
-            where(user_token_table.c.token == specification.hash)
+    @property
+    def _table(self) -> sa.Table:
+        return user_token_table
 
-        async with self._connect() as conn:
-            session_result = await conn.execute(query)
-            session_row = session_result.fetchone()
-
-        if session_row:
-            return UserSession(
-                user_id=session_row['user_id'],
-                token=session_row['token'],
-            )
-        else:
-            return None
-
-    async def _read_all(self) -> Sequence[UserSession]:
-        raise NotImplementedError()
+    @property
+    def _connect(self) -> DBConnectionFn:
+        return self._connection_fn

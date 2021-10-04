@@ -1,8 +1,4 @@
-from typing import (
-    Optional,
-    Iterable,
-    Any,
-)
+from typing import Optional
 
 from aiohttp import web, web_request
 
@@ -41,10 +37,8 @@ class ArticleEntrypoint:
 
         self._article_domain = article_domain
 
-    def make_app(self, middlewares: Iterable[Any]) -> web.Application:
-        app = web.Application(
-            middlewares=middlewares,
-        )
+    def make_app(self) -> web.Application:
+        app = web.Application()
 
         app.add_routes([
             web.post(r'', self._create_article),
@@ -80,7 +74,6 @@ class ArticleEntrypoint:
 
         response_model = await self._article_domain.article_service.create(CreateArticleRequest(
             request_user_id=request['context']['user_id'],
-            author_id=request['context']['user_id'],
             title=title if isinstance(title, str) else '',
             description=description if isinstance(description, str) else '',
             content=file_fields.file.read(),
@@ -144,7 +137,6 @@ class ArticleEntrypoint:
         response_model = await self._article_domain.comment_service.create(CreateCommentRequest(
             request_user_id=request['context']['user_id'],
             article_id=request.match_info['article_id'],
-            author_id=request['context']['user_id'],
             text=request_dict.get('text', ''),
         ))
 

@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from typing import (
     TypeVar,
     Generic,
-    Union,
+    Union, Optional,
 )
 
 from ..permission import (
@@ -48,6 +48,8 @@ class BaseService(
     Базовый сервис для CRUD сервисов.
     Пока в его задачи входит только проверить доступ клиента до ресурса
     """
+
+    _GUEST_ROLE = 'anonymous'
 
     def __init__(
             self,
@@ -137,8 +139,11 @@ class BaseService(
     async def _do_delete(self, request: DeleteRequest) -> Union[DeleteResponse, ServiceError]:
         raise NotImplementedError()
 
-    async def _get_user_role(self, user_id: Id) -> str:
-        role_id = await self._user_role_repository.read(ByUserId(
+    async def _get_user_role(self, user_id: Optional[Id]) -> str:
+        if user_id is None:
+            return self._GUEST_ROLE
+
+        role_id = await self._user_role_repository.read_one(ByUserId(
             user_id=user_id,
         ))
 
@@ -146,4 +151,4 @@ class BaseService(
             return role_id
 
         else:
-            return 'anonymous'
+            return self._GUEST_ROLE
