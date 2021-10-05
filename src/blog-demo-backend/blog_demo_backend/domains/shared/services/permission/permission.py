@@ -36,7 +36,7 @@ class PermissionService(IPermissionService):
                     response.raise_for_status()
                     response_data = await response.json()
 
-                    return response_data.get('data', {}).get('effect') == PermissionEffect.PERMIT
+                    return response_data.get('data', {}).get('effect') == PermissionEffect.PERMIT.value
 
             except Exception as e:
                 logging.exception(
