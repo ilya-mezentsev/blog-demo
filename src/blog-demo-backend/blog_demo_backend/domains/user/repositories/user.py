@@ -8,10 +8,11 @@ import sqlalchemy as sa  # type: ignore
 
 from blog_demo_backend.db import get_table
 from blog_demo_backend.shared import DBConnectionFn
-from blog_demo_backend.domains.shared import IRepository, Id
+from blog_demo_backend.domains.shared import Id
 from blog_demo_backend.domains.user import User
 
 from ..spec import UserById, UserByNickname
+from ..types import IUserRepository
 
 
 __all__ = [
@@ -22,12 +23,7 @@ __all__ = [
 user_table = get_table('user')
 
 
-class UserRepository(
-    IRepository[
-        User,
-        Union[UserById, UserByNickname],
-    ]
-):
+class UserRepository(IUserRepository):
     def __init__(
             self,
             connection_fn: DBConnectionFn,

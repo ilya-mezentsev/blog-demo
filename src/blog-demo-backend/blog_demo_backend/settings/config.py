@@ -1,5 +1,4 @@
 import json
-import os
 from typing import Mapping, Any
 
 from blog_demo_backend.db import DBSettings
@@ -37,6 +36,7 @@ class Config:
             schema_name=self._config_dict['db']['schema_name'],
             host=self._config_dict['db']['host'],
             port=self._config_dict['db']['port'],
+            pool_timeout=self._config_dict['db']['pool_timeout'],
             echo=self._config_dict['db']['echo'],
         )
 

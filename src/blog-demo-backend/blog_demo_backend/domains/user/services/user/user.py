@@ -7,7 +7,6 @@ from blog_demo_backend.domains.user import (
     UserSession,
 )
 from blog_demo_backend.domains.shared import (
-    IRepository,
     ICreator,
     IPermissionService,
     ServiceError,
@@ -20,6 +19,7 @@ from blog_demo_backend.domains.shared import (
 
 from ...shared import create_hash
 from ...spec import UserById, UserByNickname
+from ...types import IUserRepository
 
 from .request import *
 
@@ -32,7 +32,7 @@ __all__ = [
 class UserService(
     BaseService[
         CreateUserRequest,
-        GetUserRequest,
+        Union[GetUserRequest, GetUsersRequest],
         UpdateUserRequest,
         DeleteUserRequest,
     ]
@@ -43,7 +43,7 @@ class UserService(
 
     def __init__(
             self,
-            user_repository: IRepository[User, Union[UserById, UserByNickname]],
+            user_repository: IUserRepository,
             session_repository: ICreator[UserSession],
             permission_service: IPermissionService,
             user_role_repository: IReader[str, ByUserId],
@@ -59,7 +59,7 @@ class UserService(
 
     async def _resource_id(self, request: Union[
         CreateUserRequest,
-        GetUserRequest,
+        Union[GetUserRequest, GetUsersRequest],
         UpdateUserRequest,
         DeleteUserRequest,
     ]) -> str:
@@ -73,7 +73,7 @@ class UserService(
             ),
         ):
             if request.user_id == request.request_user_id:
-                return 'self-user'
+                return 'self'
 
         return 'user'
 
@@ -87,7 +87,7 @@ class UserService(
         ))
         if user_with_nickname is not None:
             return InvalidRequest(
-                description='user-already-exists',
+                description='nickname-already-exists',
             )
 
         model = User(
@@ -107,6 +107,20 @@ class UserService(
 
     async def _do_read(
             self,
+            request: Union[GetUserRequest, GetUsersRequest],
+    ) -> Union[Union[GetUserResponse, GetUsersResponse], ServiceError]:
+
+        if isinstance(request, GetUserRequest):
+            return await self._get_user(request)
+
+        elif isinstance(request, GetUsersRequest):
+            return await self._get_users(request)
+
+        else:
+            raise RuntimeError(f'Unknown request type: {type(request)!r}')
+
+    async def _get_user(
+            self,
             request: GetUserRequest,
     ) -> Union[GetUserResponse, ServiceError]:
 
@@ -117,7 +131,16 @@ class UserService(
         if user is not None:
             return GetUserResponse(user)
         else:
-            return NotFound('user-not-found-by-id')
+            return NotFound('user-not-found')
+
+    async def _get_users(
+            self,
+            _: GetUsersRequest,
+    ) -> GetUsersResponse:
+
+        return GetUsersResponse(
+            users=(await self._user_repository.read_all()),
+        )
 
     async def _do_update(
             self,
@@ -128,12 +151,20 @@ class UserService(
             user_id=request.user_id,
         ))
         if user is None:
-            return NotFound('user-not-found-by-id')
+            return NotFound('user-not-found')
+
+        user_with_nickname = await self._user_repository.read_one(UserByNickname(
+            nickname=request.nickname,
+        ))
+        if user_with_nickname is not None:
+            return InvalidRequest(
+                description='nickname-already-exists',
+            )
 
         user.nickname = request.nickname
         user.modified = datetime.datetime.now()
 
-        await self._user_repository.create(user)
+        await self._user_repository.update(user)
         return UpdateUserResponse(user)
 
     async def _do_delete(
@@ -145,7 +176,7 @@ class UserService(
             user_id=request.user_id,
         ))
         if user is None:
-            return NotFound('user-not-found-by-id')
+            return NotFound('user-not-found')
 
         await self._user_repository.delete(request.user_id)
         return DeleteUserResponse()

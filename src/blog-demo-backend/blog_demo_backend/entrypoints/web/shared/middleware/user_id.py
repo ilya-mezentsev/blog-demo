@@ -10,7 +10,7 @@ __all__ = [
 ]
 
 
-def user_id_from_cookie(get_session_by_token: Callable[[str], Awaitable[Optional[UserSession]]]):
+def user_id_from_cookie(get_session_by_key: Callable[[str], Awaitable[Optional[UserSession]]]):
 
     @web.middleware
     async def _user_id_from_cookie(
@@ -18,8 +18,8 @@ def user_id_from_cookie(get_session_by_token: Callable[[str], Awaitable[Optional
             handler: Callable[[web.Request], Awaitable[web.StreamResponse]],
     ) -> web.StreamResponse:
 
-        user_token = request.cookies.get('BLOG_DEMO_USER_TOKEN', '')
-        session = await get_session_by_token(user_token)
+        session_key = request.cookies.get('BLOG_DEMO_SESSION_KEY', '')
+        session = await get_session_by_key(session_key)
 
         user_id: Optional[str]
         if session is not None:

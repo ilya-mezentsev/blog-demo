@@ -8,6 +8,7 @@ from sqlalchemy import (  # type: ignore
     DateTime,
     Enum,
     text,
+    UniqueConstraint,
 )
 
 
@@ -27,7 +28,8 @@ Table(
     'user_token', blog_tables,
     Column('id', Integer(), autoincrement=True),
     Column('user_id', VARCHAR(36), ForeignKey('user.uuid')),
-    Column('token', VARCHAR(32), unique=True),
+    Column('token', VARCHAR(32)),
+    UniqueConstraint('user_id', 'token'),
 )
 
 Table(

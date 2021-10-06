@@ -17,4 +17,4 @@ class CreateSessionRequest:
 
 @dataclass
 class CreateSessionResponse(CreateResponse):
-    session: UserSession
+    session_key: str

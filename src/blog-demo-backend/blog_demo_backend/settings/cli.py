@@ -27,6 +27,7 @@ def cli_arguments() -> CLIArgs:
         '--logging-level',
         type=str,
         help='Logging level',
+        default='debug',
     )
 
     args = parser.parse_args()

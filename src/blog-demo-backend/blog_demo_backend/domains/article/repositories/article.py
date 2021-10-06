@@ -30,7 +30,7 @@ class ArticleRepository(IRepository[Article, ArticleById]):
         return {
             article_table.c.uuid: model.id,
             article_table.c.author_id: model.author_id,
-            article_table.c.titl: model.title,
+            article_table.c.title: model.title,
             article_table.c.description: model.description,
             article_table.c.created: model.created,
             article_table.c.modified: model.modified,

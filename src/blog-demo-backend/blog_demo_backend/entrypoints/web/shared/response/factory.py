@@ -101,7 +101,7 @@ def session_response(response: Union[
         return ResponseModel(
             http_status=web.HTTPNoContent.status_code,
             cookies={
-                'BLOG_DEMO_USER_TOKEN': response.session.token,
+                'BLOG_DEMO_SESSION_KEY': response.session_key,
             },
         )
 

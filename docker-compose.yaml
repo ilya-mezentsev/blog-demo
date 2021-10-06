@@ -5,15 +5,21 @@ services:
     image: postgres:latest
     ports:
       - "5555:5432"
+    deploy:
+      resources:
+        limits:
+          memory: 350M
+        reservations:
+          memory: 100m
     environment:
       TZ: Europe/Moscow
       POSTGRES_USER: blog_demo
       POSTGRES_PASSWORD: password
       POSTGRES_DB: blog_demo
 
-  permission_service:
+  permission-service:
     tty: false
-    build: ./src/permission_service
+    build: ./src/permission-service
     command: sh -c "make backend-run-minimal"
     ports:
       - "8080:8080"

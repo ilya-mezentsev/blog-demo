@@ -1,7 +1,7 @@
 import asyncio
 from typing import Tuple
 
-from blog_demo_backend.db import make_db_connector, DBSettings
+from blog_demo_backend.db import make_db_connector
 from blog_demo_backend.domains import (
     ArticleDomain,
     UserDomain,
@@ -10,25 +10,20 @@ from blog_demo_backend.domains import (
 )
 from blog_demo_backend.entrypoints import start_web_entrypoint
 from blog_demo_backend.settings import cli_arguments, Config
-from blog_demo_backend.shared import DBConnectionFn
 
 from .logs import configure_logging
 
 
 __all__ = [
-    'main'
+    'main',
 ]
-
-
-async def _make_db_connector(s: DBSettings) -> DBConnectionFn:
-    return await make_db_connector(s)
 
 
 async def _prepare_domains_and_settings(config: Config) -> Tuple[
     ArticleDomain,
     UserDomain,
 ]:
-    db_connector = await _make_db_connector(config.db_settings())
+    db_connector = await make_db_connector(config.db_settings())
     permission_service = PermissionService(
         settings=config.permission_settings()
     )
@@ -61,7 +56,7 @@ def main() -> None:
     config = Config(args.config_path)
 
     article_domain, user_domain = asyncio.get_event_loop().run_until_complete(
-        _prepare_domains_and_settings(config)
+        _prepare_domains_and_settings(config),
     )
 
     start_web_entrypoint(

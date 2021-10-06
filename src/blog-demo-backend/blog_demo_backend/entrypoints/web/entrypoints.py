@@ -41,7 +41,7 @@ def _make_app(
     app = web.Application(
         middlewares=[
             user_id_from_cookie(
-                get_session_by_token=user_domain.session_service.get_session_by_token,
+                get_session_by_key=user_domain.session_service.get_session_by_key,
             ),
             exception_handler,
         ],
