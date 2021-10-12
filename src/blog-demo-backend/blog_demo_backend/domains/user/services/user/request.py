@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Iterable
 
 from blog_demo_backend.domains.user import User
 from blog_demo_backend.domains.shared import (
@@ -13,6 +14,7 @@ from blog_demo_backend.domains.shared import (
 
 __all__ = [
     'GetUserRequest', 'GetUserResponse',
+    'GetUsersRequest', 'GetUsersResponse',
     'CreateUserRequest', 'CreateUserResponse',
     'UpdateUserRequest', 'UpdateUserResponse',
     'DeleteUserRequest', 'DeleteUserResponse',
@@ -27,6 +29,16 @@ class GetUserRequest(Requester):
 @dataclass
 class GetUserResponse(ReadResponse):
     user: User
+
+
+@dataclass
+class GetUsersRequest(Requester):
+    pass
+
+
+@dataclass
+class GetUsersResponse(ReadResponse):
+    users: Iterable[User]
 
 
 @dataclass

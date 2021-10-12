@@ -16,4 +16,5 @@ class DBSettings:
     port: int
     db_name: str
     schema_name: str
+    pool_timeout: int
     echo: bool = False

@@ -118,8 +118,9 @@ class ArticleService(
             _: GetArticlesRequest,
     ) -> GetArticlesResponse:
 
-        articles = await self._article_repository.read_all()
-        return GetArticlesResponse(articles)
+        return GetArticlesResponse(
+            articles=(await self._article_repository.read_all()),
+        )
 
     async def _read_article(
             self,

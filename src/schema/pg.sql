@@ -22,7 +22,7 @@ CREATE TABLE blog_demo.user_token(
     id SERIAL,
     user_id VARCHAR(36) REFERENCES blog_demo.user(uuid) ON DELETE CASCADE,
     token VARCHAR(32) NOT NULL,
-    UNIQUE (token)
+    UNIQUE (user_id, token)
 );
 
 DROP TABLE IF EXISTS blog_demo.article CASCADE;

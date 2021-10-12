@@ -1,0 +1,185 @@
+config:
+  target: "http://0.0.0.0:8888"
+  http:
+    timeout: 10
+  processor: "./tools.js"
+  plugins:
+    http-file-uploads: {}
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: Warm up
+    - duration: 120
+      arrivalRate: 5
+      rampTo: 50
+      name: Ramp up load
+    - duration: 420
+      arrivalRate: 35
+      name: Sustained load
+
+scenarios:
+  - name: "Get articles and comments by anonymous user"
+    flow:
+      - get:
+          url: "/articles"
+          capture:
+            - json: "$.data.articles"
+              as: "articles"
+
+      - function: "setCurrentArticle"
+
+      - get:
+          url: "/articles/{{ currentArticle.id }}"
+
+      - get:
+          url: "/articles/{{ currentArticle.id }}/comments"
+
+
+  - name: "Registration and updating new user"
+    flow:
+      - post:
+          url: "/users"
+          json:
+            nickname: "user_{{ $randomString() }}"
+            password: "password"
+          capture:
+            - json: "$.data.user"
+              as: "user"
+
+      - post:
+          url: "/session"
+          json:
+            nickname: "{{ user.nickname }}"
+            password: "password"
+
+      - patch:
+          url: "/users/{{ user.id }}"
+          json:
+            nickname: "user_{{ $randomString() }}"
+
+
+  - name: "Get articles and comments, create/update/delete comments by authorized user"
+    flow:
+      - post:
+          url: "/session"
+          json:
+            nickname: "user_{{ $randomNumber(0, 99) }}"
+            password: "password"
+
+      - get:
+          url: "/articles"
+          capture:
+            - json: "$.data.articles"
+              as: "articles"
+
+      - function: "setCurrentArticle"
+
+      - get:
+          url: "/articles/{{ currentArticle.id }}"
+
+      - get:
+          url: "/articles/{{ currentArticle.id }}/comments"
+
+      - think: 2
+
+      - post:
+          url: "/articles/{{ currentArticle.id }}/comments"
+          json:
+            text: "{{ $randomString() }}"
+
+      - think: 2
+
+      - post:
+          url: "/articles/{{ currentArticle.id }}/comments"
+          json:
+            text: "{{ $randomString() }}"
+          capture:
+            - json: "$.data.comment"
+              as: "createdComment"
+
+      - think: 1
+
+      - patch:
+          url: "/articles/{{ currentArticle.id }}/comments/{{ createdComment.id }}"
+          json:
+            text: "{{ $randomString() }}"
+
+      - think: 1
+
+      - delete:
+          url: "/articles/{{ currentArticle.id }}/comments/{{ createdComment.id }}"
+
+
+  - name: "Create/update/delete article by authorized user"
+    flow:
+      - post:
+          url: "/session"
+          json:
+            nickname: "user_{{ $randomNumber(0, 99) }}"
+            password: "password"
+
+      - function: "setRandomArticleFilePath"
+
+      - post:
+          url: "/articles"
+          formData:
+            title: "{{ $randomString() }}"
+            description: "{{ $randomString() }}"
+            article_file:
+              fromFile: "{{ randomArticleFilePath }}"
+          capture:
+            - json: "$.data.article"
+              as: "createdArticle"
+
+      - think: 2
+
+      - function: "setRandomArticleFilePath"
+
+      - patch:
+          url: "/articles/{{ createdArticle.id }}"
+          formData:
+            title: "{{ $randomString() }}"
+            description: "{{ $randomString() }}"
+            article_file:
+              fromFile: "{{ randomArticleFilePath }}"
+          capture:
+            - json: "$.data.article"
+              as: "createdArticle"
+
+      - think: 2
+
+      - delete:
+          url: "/articles/{{ createdArticle.id }}"
+
+
+  - name: "Delete article/comment/user by moderator"
+    flow:
+      - post:
+          url: "/session"
+          json:
+            nickname: "moderator_{{ $randomNumber(0, 9) }}"
+            password: "password"
+
+      - get:
+          url: "/articles"
+          capture:
+            - json: "$.data.articles"
+              as: "articles"
+
+      - function: "setCurrentArticle"
+
+      - get:
+          url: "/articles/{{ currentArticle.id }}"
+
+      - get:
+          url: "/articles/{{ currentArticle.id }}/comments"
+          capture:
+            - json: "$.data.comments"
+              as: "comments"
+
+      - function: "setCurrentComment"
+
+      - think: 2
+
+      - delete:
+          url: "/articles/{{ currentArticle.id }}/comments/{{ currentComment.id }}"

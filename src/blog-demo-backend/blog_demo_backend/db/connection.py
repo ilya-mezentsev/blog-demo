@@ -37,6 +37,7 @@ async def make_db_connector(settings: DBSettings) -> DBConnectionFn:
         f'{settings.dialect}+{settings.driver}://'
         f'{settings.user}:{settings.password}@{settings.host}:{settings.port}/{settings.db_name}',
 
+        pool_timeout=settings.pool_timeout,
         echo=settings.echo,
     )
 

@@ -9,7 +9,7 @@ from blog_demo_backend.db import get_table
 from blog_demo_backend.shared import DBConnectionFn
 from blog_demo_backend.domains.user import UserSession
 
-from ..spec import SessionByHash
+from ..spec import SessionByUserIdAndToken
 from ..types import IUserSessionRepository
 
 
@@ -35,8 +35,11 @@ class UserSessionRepository(IUserSessionRepository):
             user_token_table.c.token: model.token,
         }
 
-    def _make_where_for_read(self, specification: SessionByHash) -> sa.sql.ColumnElement:
-        return user_token_table.c.token == specification.hash
+    def _make_where_for_read(self, specification: SessionByUserIdAndToken) -> sa.sql.ColumnElement:
+        return sa.and_(
+            user_token_table.c.user_id == specification.user_id,
+            user_token_table.c.token == specification.token,
+        )
 
     def _model_from_row(self, session_row: Mapping[str, Any]) -> UserSession:
         return UserSession(

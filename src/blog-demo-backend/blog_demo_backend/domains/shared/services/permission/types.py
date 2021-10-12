@@ -41,3 +41,6 @@ class PermissionRequest:
     resource_id: str
     operation: Operation
     version_id: Optional[str] = None
+
+    def __str__(self) -> str:
+        return f'{self.role_id}:{self.resource_id}:{self.operation.value}:{self.version_id}'

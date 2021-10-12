@@ -116,7 +116,7 @@ class IUpdater(
         query = self._table. \
             update(). \
             values(self._make_update_mapping(model)). \
-            where(self._make_update_mapping(model))
+            where(self._make_where_for_update(model))
 
         async with self._connect() as conn:
             await conn.execute(query)

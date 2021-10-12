@@ -1,11 +1,14 @@
 from dataclasses import dataclass
 
+from blog_demo_backend.domains.shared import Id
+
 
 __all__ = [
-    'SessionByHash',
+    'SessionByUserIdAndToken',
 ]
 
 
 @dataclass
-class SessionByHash:
-    hash: str
+class SessionByUserIdAndToken:
+    user_id: Id
+    token: str

@@ -1,7 +1,12 @@
 import logging
-from typing import Mapping
+from typing import (
+    Mapping,
+    Callable,
+    Awaitable,
+)
 
 import aiohttp
+from aiocache import cached  # type: ignore
 
 from .settings import PermissionSettings
 from .types import (
@@ -16,6 +21,15 @@ __all__ = [
 ]
 
 
+def has_permission_key_builder(
+        has_permission: Callable[[PermissionRequest], Awaitable[bool]],
+        service: 'PermissionService',
+        request: PermissionRequest,
+) -> str:
+
+    return f'{service.__class__.__name__}.{has_permission.__name__}({str(request)})'
+
+
 class PermissionService(IPermissionService):
     def __init__(
             self,
@@ -24,6 +38,10 @@ class PermissionService(IPermissionService):
 
         self._settings = settings
 
+    @cached(
+        ttl=300,
+        key_builder=has_permission_key_builder,
+    )
     async def has_permission(self, request: PermissionRequest) -> bool:
         async with aiohttp.ClientSession() as session:
             try:
