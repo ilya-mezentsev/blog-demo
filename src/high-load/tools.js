@@ -12,7 +12,7 @@ const randomIndex = arr => Math.floor(Math.random() * arr.length)
 
 /**
  *
- * @param {{vars: {articles: any[], comments: any[], users: any[]}}} context
+ * @param {{vars: {articles: any[], comments: any[]}}} context
  * @param {any} events
  * @param {Function} done
  */
@@ -23,7 +23,7 @@ function setCurrentArticle(context, events, done) {
 
 /**
  *
- * @param {{vars: {articles: any[], comments: any[], users: any[]}}} context
+ * @param {{vars: {articles: any[], comments: any[]}}} context
  * @param {any} events
  * @param {Function} done
  */
@@ -34,7 +34,7 @@ function setCurrentComment(context, events, done) {
 
 /**
  *
- * @param {{vars: {articles: any[], comments: any[], users: any[]}}} context
+ * @param {{vars: {articles: any[], comments: any[]}}} context
  * @param {any} events
  * @param {Function} done
  */
