@@ -13,7 +13,11 @@
   },
   "server": {
     "host": "0.0.0.0",
-    "port": 8888
+    "port": 8888,
+    "basic_auth": {
+      "username": "blog-demo-internal-user",
+      "password": "bd_password"
+    }
   },
   "files": {
     "articles_root_path": "/tmp/blog_demo"

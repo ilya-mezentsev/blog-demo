@@ -1,0 +1,10 @@
+groups:
+  - name: example
+    rules:
+      - alert: HighRequestLatency
+        expr: avg(rate(request_processing_seconds_sum{app_name='blog-demo-api'}[5m])) / avg(rate(request_processing_seconds_count{app_name='blog-demo-api'}[5m])) > 1
+        labels:
+          severity: critical
+        annotations:
+          summary: High request latency
+          request_latency_seconds: "{{ $value }}"

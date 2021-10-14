@@ -2,12 +2,17 @@ from aiohttp import web
 
 from blog_demo_backend.domains import ArticleDomain, UserDomain
 
+from .alert import AlertEntrypoint
 from .article import ArticleEntrypoint
 from .session import UserSessionEntrypoint
 from .user import UserEntrypoint
 from .settings import WebEntrypointSettings
 
-from .shared import exception_handler, user_id_from_cookie
+from .shared import (
+    exception_handler,
+    user_id_from_cookie,
+    setup_metrics,
+)
 
 
 __all__ = [
@@ -24,6 +29,7 @@ def start_web_entrypoint(
     app = _make_app(
         article_domain=article_domain,
         user_domain=user_domain,
+        settings=settings,
     )
 
     web.run_app(
@@ -36,6 +42,7 @@ def start_web_entrypoint(
 def _make_app(
         article_domain: ArticleDomain,
         user_domain: UserDomain,
+        settings: WebEntrypointSettings,
 ) -> web.Application:
 
     app = web.Application(
@@ -47,10 +54,17 @@ def _make_app(
         ],
     )
 
+    alert_entrypoint = AlertEntrypoint()
     article_entrypoint = ArticleEntrypoint(article_domain)
     user_session_entrypoint = UserSessionEntrypoint(user_domain)
     user_entrypoint = UserEntrypoint(user_domain)
 
+    app.add_subapp(
+        prefix=r'/alert',
+        subapp=alert_entrypoint.make_app(
+            basic_auth=settings.basic_auth,
+        ),
+    )
     app.add_subapp(
         prefix=r'/articles',
         subapp=article_entrypoint.make_app(),
@@ -62,6 +76,11 @@ def _make_app(
     app.add_subapp(
         prefix=r'/session',
         subapp=user_session_entrypoint.make_app(),
+    )
+
+    setup_metrics(
+        app=app,
+        app_name='blog-demo-api',
     )
 
     return app

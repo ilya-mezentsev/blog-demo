@@ -23,7 +23,7 @@ MAIN_CONFIG_PATH ?= $(CONFIG_DIR)/main.json
 DOCKER_COMPOSE_FILE := $(ROOT_DIR)/docker-compose.yaml
 DOCKER_COMPOSE_HL_FILE := $(ROOT_DIR)/docker-compose.hl.yaml
 
-ARTILLERY_CONFIG_FILE := $(SOURCE_FOLDER)/high-load/config.yaml
+ARTILLERY_CONFIG_FILE := $(SOURCE_FOLDER)/high-load/tests/artillery.yaml
 
 PG_SCHEMA_FILE := $(SOURCE_FOLDER)/schema/pg.sql
 
@@ -77,4 +77,4 @@ containers-run:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) -p $(PROJECT_NAME) up
 
 containers-hl-run:
-	docker-compose -f $(DOCKER_COMPOSE_FILE) -f $(DOCKER_COMPOSE_HL_FILE) -p $(PROJECT_NAME) up backend
+	docker-compose -f $(DOCKER_COMPOSE_FILE) -f $(DOCKER_COMPOSE_HL_FILE) -p $(PROJECT_NAME) up backend alertmanager prometheus

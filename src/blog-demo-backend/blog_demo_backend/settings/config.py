@@ -3,7 +3,7 @@ from typing import Mapping, Any
 
 from blog_demo_backend.db import DBSettings
 from blog_demo_backend.domains import ArticleSettings, PermissionSettings
-from blog_demo_backend.entrypoints import WebEntrypointSettings
+from blog_demo_backend.entrypoints import WebEntrypointSettings, BasicAuthSettings
 
 
 class Config:
@@ -55,4 +55,8 @@ class Config:
         return WebEntrypointSettings(
             host=self._config_dict['server']['host'],
             port=self._config_dict['server']['port'],
+            basic_auth=BasicAuthSettings(
+                username=self._config_dict['server']['basic_auth']['username'],
+                password=self._config_dict['server']['basic_auth']['password'],
+            ),
         )
