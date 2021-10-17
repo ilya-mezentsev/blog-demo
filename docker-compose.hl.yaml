@@ -10,7 +10,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 300M
+          memory: 600M
         reservations:
           memory: 100m
     ports:
@@ -21,3 +21,25 @@ services:
     links:
       - db
       - permission-service
+
+  alertmanager:
+    build:
+      context: ./src/high-load/alerting/
+      dockerfile: alertmanager.Dockerfile
+    command:
+      - '--config.file=/etc/prometheus/alertmanager.yaml'
+    ports:
+      - "9093:9093"
+    depends_on:
+      - backend
+
+  prometheus:
+    build:
+      context: ./src/high-load/monitoring/
+      dockerfile: prometheus.Dockerfile
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    depends_on:
+      - alertmanager

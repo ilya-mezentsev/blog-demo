@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 __all__ = [
     'WebEntrypointSettings',
+    'BasicAuthSettings',
 ]
 
 
@@ -10,3 +11,11 @@ __all__ = [
 class WebEntrypointSettings:
     host: str
     port: int
+
+    basic_auth: 'BasicAuthSettings'
+
+
+@dataclass
+class BasicAuthSettings:
+    username: str
+    password: str

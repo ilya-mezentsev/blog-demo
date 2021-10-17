@@ -1,0 +1,15 @@
+route:
+  receiver: "request-latency-receiver"
+  # т.к. сейчас алерты не делятся на группы, тут имеет смысл сделать интервалы небольшими,
+  # чтобы получать больше инфы в приложении
+  repeat_interval: 10s
+  group_interval: 10s
+
+receivers:
+  - name: "request-latency-receiver"
+    webhook_configs:
+      - url: "http://backend:8888/alert"
+        http_config:
+          basic_auth:
+            username: "blog-demo-internal-user"
+            password: "bd_password"

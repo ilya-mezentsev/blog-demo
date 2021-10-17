@@ -17,6 +17,7 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: blog_demo
 
+  # todo разобраться с логированием
   permission-service:
     tty: false
     build: ./src/permission-service

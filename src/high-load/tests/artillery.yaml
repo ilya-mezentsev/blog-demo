@@ -1,7 +1,7 @@
 config:
   target: "http://0.0.0.0:8888"
   http:
-    timeout: 10
+    timeout: 25
   processor: "./tools.js"
   plugins:
     http-file-uploads: {}
@@ -80,14 +80,10 @@ scenarios:
       - get:
           url: "/articles/{{ currentArticle.id }}/comments"
 
-      - think: 2
-
       - post:
           url: "/articles/{{ currentArticle.id }}/comments"
           json:
             text: "{{ $randomString() }}"
-
-      - think: 2
 
       - post:
           url: "/articles/{{ currentArticle.id }}/comments"
@@ -97,14 +93,10 @@ scenarios:
             - json: "$.data.comment"
               as: "createdComment"
 
-      - think: 1
-
       - patch:
           url: "/articles/{{ currentArticle.id }}/comments/{{ createdComment.id }}"
           json:
             text: "{{ $randomString() }}"
-
-      - think: 1
 
       - delete:
           url: "/articles/{{ currentArticle.id }}/comments/{{ createdComment.id }}"
@@ -131,8 +123,6 @@ scenarios:
             - json: "$.data.article"
               as: "createdArticle"
 
-      - think: 2
-
       - function: "setRandomArticleFilePath"
 
       - patch:
@@ -145,8 +135,6 @@ scenarios:
           capture:
             - json: "$.data.article"
               as: "createdArticle"
-
-      - think: 2
 
       - delete:
           url: "/articles/{{ createdArticle.id }}"
@@ -178,8 +166,6 @@ scenarios:
               as: "comments"
 
       - function: "setCurrentComment"
-
-      - think: 2
 
       - delete:
           url: "/articles/{{ currentArticle.id }}/comments/{{ currentComment.id }}"
