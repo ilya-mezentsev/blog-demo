@@ -22,12 +22,6 @@ user_token_table = get_table('user_token')
 
 
 class UserSessionRepository(IUserSessionRepository):
-    def __init__(
-            self,
-            connection_fn: DBConnectionFn,
-    ) -> None:
-
-        self._connection_fn = connection_fn
 
     def _make_create_mapping(self, model: UserSession) -> Mapping[sa.Column, Any]:
         return {
@@ -50,7 +44,3 @@ class UserSessionRepository(IUserSessionRepository):
     @property
     def _table(self) -> sa.Table:
         return user_token_table
-
-    @property
-    def _connect(self) -> DBConnectionFn:
-        return self._connection_fn

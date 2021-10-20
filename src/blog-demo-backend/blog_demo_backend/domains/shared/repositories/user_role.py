@@ -19,13 +19,6 @@ user_table = get_table('user')
 
 class UserRoleRepository(IReader[str, ByUserId]):
 
-    def __init__(
-            self,
-            connection_fn: DBConnectionFn,
-    ) -> None:
-
-        self._connection_fn = connection_fn
-
     def _make_where_for_read(self, specification: ByUserId) -> sa.sql.ColumnElement:
         return user_table.c.uuid == specification.user_id
 
@@ -35,7 +28,3 @@ class UserRoleRepository(IReader[str, ByUserId]):
     @property
     def _table(self) -> sa.Table:
         return user_table
-
-    @property
-    def _connect(self) -> DBConnectionFn:
-        return self._connection_fn

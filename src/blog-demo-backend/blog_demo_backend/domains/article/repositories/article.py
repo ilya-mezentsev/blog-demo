@@ -19,12 +19,6 @@ article_table = get_table('article')
 
 
 class ArticleRepository(IRepository[Article, ArticleById]):
-    def __init__(
-            self,
-            connection_fn: DBConnectionFn,
-    ) -> None:
-
-        self._connection_fn = connection_fn
 
     def _make_create_mapping(self, model: Article) -> Mapping[sa.Column, Any]:
         return {
@@ -65,7 +59,3 @@ class ArticleRepository(IRepository[Article, ArticleById]):
     @property
     def _table(self) -> sa.Table:
         return article_table
-
-    @property
-    def _connect(self) -> DBConnectionFn:
-        return self._connection_fn

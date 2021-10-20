@@ -24,12 +24,6 @@ user_table = get_table('user')
 
 
 class UserRepository(IUserRepository):
-    def __init__(
-            self,
-            connection_fn: DBConnectionFn,
-    ) -> None:
-
-        self._connection_fn = connection_fn
 
     def _make_create_mapping(self, model: User) -> Mapping[sa.Column, Any]:
         return {
@@ -76,7 +70,3 @@ class UserRepository(IUserRepository):
     @property
     def _table(self) -> sa.Table:
         return user_table
-
-    @property
-    def _connect(self) -> DBConnectionFn:
-        return self._connection_fn
