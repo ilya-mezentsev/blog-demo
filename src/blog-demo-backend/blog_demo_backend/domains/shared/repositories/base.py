@@ -29,14 +29,17 @@ SpecificationType = TypeVar('SpecificationType')
 
 
 class IRepositoryMixin:
-    @property
-    @abstractmethod
-    def _table(self) -> sa.Table:
-        raise NotImplementedError()
+
+    def __init__(
+            self,
+            connection_fn: DBConnectionFn,
+    ) -> None:
+
+        self._connection_fn = connection_fn
 
     @property
     @abstractmethod
-    def _connect(self) -> DBConnectionFn:
+    def _table(self) -> sa.Table:
         raise NotImplementedError()
 
 
@@ -50,7 +53,7 @@ class ICreator(
             insert(). \
             values(self._make_create_mapping(model))
 
-        async with self._connect() as conn:
+        async with self._connection_fn() as conn:
             await conn.execute(query)
 
     @abstractmethod
@@ -73,7 +76,7 @@ class IReader(
             select(). \
             where(self._make_where_for_read(specification))
 
-        async with self._connect() as conn:
+        async with self._connection_fn() as conn:
             row_result = await conn.execute(query)
             row = row_result.fetchone()
 
@@ -91,7 +94,7 @@ class IReader(
         if specification is not None:
             query = query.where(self._make_where_for_read(specification))
 
-        async with self._connect() as conn:
+        async with self._connection_fn() as conn:
             rows_result = await conn.execute(query)
             rows = rows_result.fetchall()
 
@@ -118,7 +121,7 @@ class IUpdater(
             values(self._make_update_mapping(model)). \
             where(self._make_where_for_update(model))
 
-        async with self._connect() as conn:
+        async with self._connection_fn() as conn:
             await conn.execute(query)
 
     @abstractmethod
@@ -139,7 +142,7 @@ class IDeleter(
             delete(). \
             where(self._make_where_for_delete(model_id))
 
-        async with self._connect() as conn:
+        async with self._connection_fn() as conn:
             await conn.execute(query)
 
     @abstractmethod

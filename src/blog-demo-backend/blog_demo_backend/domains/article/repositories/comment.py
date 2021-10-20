@@ -31,12 +31,6 @@ class CommentRepository(
         Union[CommentByIds, CommentsByArticleId],
     ]
 ):
-    def __init__(
-            self,
-            connection_fn: DBConnectionFn,
-    ) -> None:
-
-        self._connection_fn = connection_fn
 
     def _make_create_mapping(self, model: Comment) -> Mapping[sa.Column, Any]:
         return {
@@ -94,7 +88,3 @@ class CommentRepository(
     @property
     def _table(self) -> sa.Table:
         return comment_table
-
-    @property
-    def _connect(self) -> DBConnectionFn:
-        return self._connection_fn
