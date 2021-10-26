@@ -2,7 +2,7 @@ groups:
   - name: example
     rules:
       - alert: HighRequestLatency
-        expr: avg(rate(request_processing_seconds_sum{app_name='blog-demo-api'}[5m])) / avg(rate(request_processing_seconds_count{app_name='blog-demo-api'}[5m])) > 1
+        expr: avg(avg_over_time(request_processing_seconds_sum{app_name="blog-demo-api"}[1m]) / avg_over_time(request_processing_seconds_count{app_name="blog-demo-api"}[1m])) > 0
         labels:
           severity: critical
         annotations:

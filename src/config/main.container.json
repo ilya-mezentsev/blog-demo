@@ -24,6 +24,21 @@
   },
   "permission_service": {
     "permission_resolver_url": "http://permission-service:8080/permissions",
-    "request_timeout": 5
+    "request_timeout": 5,
+    "load_levels": [
+      {
+        "version_id": "regular",
+        "max_latency": 1
+      },
+      {
+        "version_id": "medium-load",
+        "max_latency": 2
+      },
+      {
+        "version_id": "high-load",
+        "max_latency": 4
+      }
+    ],
+    "critical_version_id": "critical-load"
   }
 }

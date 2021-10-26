@@ -22,6 +22,10 @@ class IPermissionService(metaclass=ABCMeta):
 
         raise NotImplementedError()
 
+    @abstractmethod
+    async def get_roles_version(self) -> str:
+        raise NotImplementedError()
+
 
 class PermissionEffect(Enum):
     PERMIT = 'permit'

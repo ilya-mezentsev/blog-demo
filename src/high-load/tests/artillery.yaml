@@ -19,6 +19,7 @@ config:
 
 scenarios:
   - name: "Get articles and comments by anonymous user"
+    weight: 10
     flow:
       - get:
           url: "/articles"
@@ -36,6 +37,7 @@ scenarios:
 
 
   - name: "Registration and updating new user"
+    weight: 10
     flow:
       - post:
           url: "/users"
@@ -59,6 +61,7 @@ scenarios:
 
 
   - name: "Get articles and comments, create/update/delete comments by authorized user"
+    weight: 10
     flow:
       - post:
           url: "/session"
@@ -103,6 +106,7 @@ scenarios:
 
 
   - name: "Create/update/delete article by authorized user"
+    weight: 10
     flow:
       - post:
           url: "/session"
@@ -141,6 +145,7 @@ scenarios:
 
 
   - name: "Delete article/comment/user by moderator"
+    weight: 1
     flow:
       - post:
           url: "/session"

@@ -2,7 +2,11 @@ import json
 from typing import Mapping, Any
 
 from blog_demo_backend.db import DBSettings
-from blog_demo_backend.domains import ArticleSettings, PermissionSettings
+from blog_demo_backend.domains import (
+    ArticleSettings,
+    PermissionSettings,
+    LoadLevel,
+)
 from blog_demo_backend.entrypoints import WebEntrypointSettings, BasicAuthSettings
 
 
@@ -49,6 +53,14 @@ class Config:
         return PermissionSettings(
             permission_resolver_url=self._config_dict['permission_service']['permission_resolver_url'],
             request_timeout=self._config_dict['permission_service']['request_timeout'],
+            load_levels=[
+                LoadLevel(
+                    version_id=item['version_id'],
+                    max_latency=item['max_latency'],
+                )
+                for item in self._config_dict['permission_service']['load_levels']
+            ],
+            critical_version_id=self._config_dict['permission_service']['critical_version_id'],
         )
 
     def web_entrypoint_settings(self) -> WebEntrypointSettings:

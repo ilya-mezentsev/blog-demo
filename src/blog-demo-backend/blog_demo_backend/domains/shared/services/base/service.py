@@ -85,6 +85,7 @@ class BaseService(
             role_id=(await self._get_user_role(request.request_user_id)),
             resource_id=(await self._resource_id(request)),
             operation=Operation.CREATE,
+            version_id=(await self._permission_service.get_roles_version()),
         ))):
             return ForbiddenError('operation-not-permitted')
 
@@ -100,6 +101,7 @@ class BaseService(
             role_id=(await self._get_user_role(request.request_user_id)),
             resource_id=(await self._resource_id(request)),
             operation=Operation.READ,
+            version_id=(await self._permission_service.get_roles_version()),
         ))):
             return ForbiddenError('operation-not-permitted')
 
@@ -115,6 +117,7 @@ class BaseService(
             role_id=(await self._get_user_role(request.request_user_id)),
             resource_id=(await self._resource_id(request)),
             operation=Operation.UPDATE,
+            version_id=(await self._permission_service.get_roles_version()),
         ))):
             return ForbiddenError('operation-not-permitted')
 
@@ -130,6 +133,7 @@ class BaseService(
             role_id=(await self._get_user_role(request.request_user_id)),
             resource_id=(await self._resource_id(request)),
             operation=Operation.DELETE,
+            version_id=(await self._permission_service.get_roles_version()),
         ))):
             return ForbiddenError('operation-not-permitted')
 
