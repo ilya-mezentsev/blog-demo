@@ -19,14 +19,14 @@ __all__ = [
 ]
 
 
-async def _prepare_domains_and_settings(config: Config) -> Tuple[
+async def _prepare_domains_and_settings(
+        config: Config,
+        permission_service: PermissionService,
+) -> Tuple[
     ArticleDomain,
     UserDomain,
 ]:
     db_connector = await make_db_connector(config.db_settings())
-    permission_service = PermissionService(
-        settings=config.permission_settings()
-    )
     user_role_repository = UserRoleRepository(db_connector)
 
     article_domain = ArticleDomain(
@@ -55,12 +55,20 @@ def main() -> None:
 
     config = Config(args.config_path)
 
+    permission_service = PermissionService(
+        settings=config.permission_settings()
+    )
+
     article_domain, user_domain = asyncio.get_event_loop().run_until_complete(
-        _prepare_domains_and_settings(config),
+        _prepare_domains_and_settings(
+            permission_service=permission_service,
+            config=config,
+        ),
     )
 
     start_web_entrypoint(
         article_domain=article_domain,
         user_domain=user_domain,
+        permission_service=permission_service,
         settings=config.web_entrypoint_settings(),
     )

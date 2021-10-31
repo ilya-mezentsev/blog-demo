@@ -1,7 +1,7 @@
-import logging
-
 from aiohttp import web
 from aiohttp_basicauth import BasicAuthMiddleware  # type: ignore
+
+from blog_demo_backend.domains import PermissionService
 
 from ..settings import BasicAuthSettings
 
@@ -12,6 +12,13 @@ __all__ = [
 
 
 class AlertEntrypoint:
+
+    def __init__(
+            self,
+            permission_service: PermissionService,
+    ) -> None:
+
+        self._permission_service = permission_service
 
     def make_app(
             self,
@@ -34,14 +41,12 @@ class AlertEntrypoint:
 
         return app
 
-    @staticmethod
-    async def _on_alert(request: web.Request) -> web.Response:
-        """
-        Пока просто логирование.
-        Тут предполагается каким-то образом вызвать изменение версии политик доступа
-        """
-
-        logging.warning(f'Got alert request: {await request.json()}')
+    async def _on_alert(self, request: web.Request) -> web.Response:
+        alert_data = await request.json()
+        for alert in alert_data.get('alerts', []):
+            request_latency_seconds = alert.get(
+                'annotations', {}).get('request_latency_seconds', 0)
+            await self._permission_service.update_version(float(request_latency_seconds))
 
         return web.Response(
             status=200,

@@ -2,6 +2,7 @@ from typing import (
     Union,
     Optional,
     Mapping,
+    Dict,
     Any,
 )
 
@@ -57,7 +58,7 @@ def from_response(response: Union[
 
 
 def _from_dict_ok(response_dict: Optional[Mapping[str, Any]]) -> ResponseModel:
-    body: dict[str, Union[str, Mapping[str, Any]]] = {
+    body: Dict[str, Union[str, Mapping[str, Any]]] = {
         'code': 'ok',
     }
 
@@ -111,7 +112,7 @@ def session_response(response: Union[
 
 def unauthorized_error(description: str) -> ResponseModel:
     return _make_error(
-        web.HTTPUnauthorized.status_code,
+        status_code=web.HTTPUnauthorized.status_code,
         description=description,
     )
 

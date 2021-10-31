@@ -1,6 +1,10 @@
 from aiohttp import web
 
-from blog_demo_backend.domains import ArticleDomain, UserDomain
+from blog_demo_backend.domains import (
+    ArticleDomain,
+    UserDomain,
+    PermissionService,
+)
 
 from .alert import AlertEntrypoint
 from .article import ArticleEntrypoint
@@ -23,12 +27,14 @@ __all__ = [
 def start_web_entrypoint(
         article_domain: ArticleDomain,
         user_domain: UserDomain,
+        permission_service: PermissionService,
         settings: WebEntrypointSettings,
 ) -> None:
 
     app = _make_app(
         article_domain=article_domain,
         user_domain=user_domain,
+        permission_service=permission_service,
         settings=settings,
     )
 
@@ -42,6 +48,7 @@ def start_web_entrypoint(
 def _make_app(
         article_domain: ArticleDomain,
         user_domain: UserDomain,
+        permission_service: PermissionService,
         settings: WebEntrypointSettings,
 ) -> web.Application:
 
@@ -54,7 +61,7 @@ def _make_app(
         ],
     )
 
-    alert_entrypoint = AlertEntrypoint()
+    alert_entrypoint = AlertEntrypoint(permission_service)
     article_entrypoint = ArticleEntrypoint(article_domain)
     user_session_entrypoint = UserSessionEntrypoint(user_domain)
     user_entrypoint = UserEntrypoint(user_domain)
