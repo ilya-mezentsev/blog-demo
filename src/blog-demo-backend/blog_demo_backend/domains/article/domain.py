@@ -3,6 +3,7 @@ from blog_demo_backend.domains.shared import (
     IPermissionService,
     IReader,
     ByUserId,
+    MemoryCacheRepository,
 )
 from blog_demo_backend.domains.article import (
     ArticleSettings,
@@ -28,8 +29,12 @@ class ArticleDomain:
             user_role_repository: IReader[str, ByUserId],
     ) -> None:
 
+        self.article_cache = MemoryCacheRepository()
+        self.comment_cache = MemoryCacheRepository()
+
         article_repository = ArticleRepository(
             connection_fn=connection_fn,
+            cache=self.article_cache,
         )
 
         self.article_service = ArticleService(
@@ -42,6 +47,7 @@ class ArticleDomain:
         self.comment_service = CommentService(
             comment_repository=CommentRepository(
                 connection_fn=connection_fn,
+                cache=self.comment_cache,
             ),
             article_repository=article_repository,
             permission_service=permission_service,

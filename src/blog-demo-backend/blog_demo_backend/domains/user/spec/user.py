@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from blog_demo_backend.domains.shared import Id
+from blog_demo_backend.domains.shared import Id, BaseSpec
 
 
 __all__ = [
@@ -10,10 +10,10 @@ __all__ = [
 
 
 @dataclass
-class UserById:
+class UserById(BaseSpec):
     user_id: Id
 
 
 @dataclass
-class UserByNickname:
+class UserByNickname(BaseSpec):
     nickname: str

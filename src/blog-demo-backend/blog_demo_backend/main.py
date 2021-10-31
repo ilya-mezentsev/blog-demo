@@ -27,7 +27,10 @@ async def _prepare_domains_and_settings(
     UserDomain,
 ]:
     db_connector = await make_db_connector(config.db_settings())
-    user_role_repository = UserRoleRepository(db_connector)
+    user_role_repository = UserRoleRepository(
+        connection_fn=db_connector,
+        cache=UserDomain.user_role_cache,
+    )
 
     article_domain = ArticleDomain(
         article_settings=config.article_settings(),

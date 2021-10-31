@@ -3,6 +3,7 @@ from blog_demo_backend.domains.shared import (
     IPermissionService,
     IReader,
     ByUserId,
+    MemoryCacheRepository,
 )
 from blog_demo_backend.domains.user import (
     UserService,
@@ -19,6 +20,8 @@ __all__ = [
 
 class UserDomain:
 
+    user_role_cache = MemoryCacheRepository()
+
     def __init__(
             self,
             connection_fn: DBConnectionFn,
@@ -26,11 +29,16 @@ class UserDomain:
             user_role_repository: IReader[str, ByUserId],
     ) -> None:
 
+        self.user_cache = MemoryCacheRepository()
+        self.session_cache = MemoryCacheRepository()
+
         user_repository = UserRepository(
             connection_fn=connection_fn,
+            cache=self.user_cache,
         )
         session_repository = UserSessionRepository(
             connection_fn=connection_fn,
+            cache=self.session_cache,
         )
 
         self.user_service = UserService(
