@@ -3,7 +3,7 @@ from blog_demo_backend.domains.shared import (
     IPermissionService,
     IReader,
     ByUserId,
-    MemoryCacheRepository,
+    MemoryCache,
 )
 from blog_demo_backend.domains.article import (
     ArticleSettings,
@@ -29,8 +29,8 @@ class ArticleDomain:
             user_role_repository: IReader[str, ByUserId],
     ) -> None:
 
-        self.article_cache = MemoryCacheRepository()
-        self.comment_cache = MemoryCacheRepository()
+        self.article_cache = MemoryCache()
+        self.comment_cache = MemoryCache()
 
         article_repository = ArticleRepository(
             connection_fn=connection_fn,

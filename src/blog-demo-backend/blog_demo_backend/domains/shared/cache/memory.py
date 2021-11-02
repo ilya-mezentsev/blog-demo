@@ -11,14 +11,14 @@ from .base import ICache
 
 
 __all__ = [
-    'MemoryCacheRepository',
+    'MemoryCache',
 ]
 
 
 cache_lock = asyncio.Lock()
 
 
-class MemoryCacheRepository(ICache):
+class MemoryCache(ICache):
 
     def __init__(self) -> None:
 
