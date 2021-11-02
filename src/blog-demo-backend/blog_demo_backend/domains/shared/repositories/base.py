@@ -12,6 +12,8 @@ import sqlalchemy as sa  # type: ignore
 
 from blog_demo_backend.shared import DBConnectionFn
 
+from ..cache import ICache
+from ..spec import BaseSpec
 from ..types import Id
 
 
@@ -25,7 +27,7 @@ __all__ = [
 
 
 ModelType = TypeVar('ModelType')
-SpecificationType = TypeVar('SpecificationType')
+SpecificationType = TypeVar('SpecificationType', bound=BaseSpec)
 
 
 class IRepositoryMixin:
@@ -33,9 +35,12 @@ class IRepositoryMixin:
     def __init__(
             self,
             connection_fn: DBConnectionFn,
+            cache: ICache,
     ) -> None:
 
         self._connection_fn = connection_fn
+
+        self._cache = cache
 
     @property
     @abstractmethod
@@ -56,6 +61,8 @@ class ICreator(
         async with self._connection_fn() as conn:
             await conn.execute(query)
 
+        await self._cache.on_data_changed()
+
     @abstractmethod
     def _make_create_mapping(self, model: ModelType) -> Mapping[sa.Column, Any]:
         raise NotImplementedError()
@@ -72,6 +79,23 @@ class IReader(
 
     async def read_one(self, specification: SpecificationType) -> Optional[ModelType]:
 
+        cached, cache_hit = await self._cache.get_cached(
+            method='read_one',
+            search=specification,
+        )
+        if cache_hit:
+            return cached
+        else:
+            res = await self._read_one(specification)
+            await self._cache.set_cached(
+                method='read_one',
+                search=specification,
+                value=res,
+            )
+            return res
+
+    async def _read_one(self, specification: SpecificationType) -> Optional[ModelType]:
+
         query = self._table. \
             select(). \
             where(self._make_where_for_read(specification))
@@ -86,6 +110,29 @@ class IReader(
             return None
 
     async def read_all(
+            self,
+            specification: Optional[SpecificationType] = None,
+    ) -> Sequence[ModelType]:
+
+        cached, cache_hit = await self._cache.get_cached(
+            method='read_all',
+            search=specification,
+        )
+        if cache_hit:
+            # Для mypy
+            assert cached is not None
+
+            return cached
+        else:
+            res = await self._read_all(specification)
+            await self._cache.set_cached(
+                method='read_all',
+                search=specification,
+                value=res,
+            )
+            return res
+
+    async def _read_all(
             self,
             specification: Optional[SpecificationType] = None,
     ) -> Sequence[ModelType]:
@@ -124,6 +171,8 @@ class IUpdater(
         async with self._connection_fn() as conn:
             await conn.execute(query)
 
+        await self._cache.on_data_changed()
+
     @abstractmethod
     def _make_update_mapping(self, model: ModelType) -> Mapping[sa.Column, Any]:
         raise NotImplementedError()
@@ -144,6 +193,8 @@ class IDeleter(
 
         async with self._connection_fn() as conn:
             await conn.execute(query)
+
+        await self._cache.on_data_changed()
 
     @abstractmethod
     def _make_where_for_delete(self, model_id: Id) -> sa.sql.ColumnElement:

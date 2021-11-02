@@ -3,7 +3,6 @@ from typing import Mapping, Any
 import sqlalchemy as sa  # type: ignore
 
 from blog_demo_backend.db import get_table
-from blog_demo_backend.shared import DBConnectionFn
 from ..spec import ByUserId
 
 from .base import IReader
