@@ -27,7 +27,7 @@ scrape_configs:
       - targets: ["localhost:9090"]
 
   - job_name: "blog-demo-api"
-    scrape_interval: 5s
+    scrape_interval: 2s
 
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.

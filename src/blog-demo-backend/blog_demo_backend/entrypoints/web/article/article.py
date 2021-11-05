@@ -1,8 +1,6 @@
-from typing import Optional
 
-from aiohttp import web, web_request
+from aiohttp import web
 
-from blog_demo_backend.domains.shared import InvalidRequest
 from blog_demo_backend.domains.article import (
     ArticleDomain,
     CreateArticleRequest,
@@ -62,21 +60,16 @@ class ArticleEntrypoint:
         return app
 
     async def _create_article(self, request: web.Request) -> web.Response:
-        data = await request.post()
-        file_fields = data.get('article_file')
-        if not isinstance(file_fields, web_request.FileField):
-            return make_json_response(from_response(InvalidRequest(
-                description='missed-file',
-            )))
+        request_dict, invalid = await read_json(request)
+        if invalid is not None:
+            return make_json_response(from_response(invalid))
 
-        title = data.get('title', '')
-        description = data.get('description', '')
-
+        assert request_dict is not None
         response_model = await self._article_domain.article_service.create(CreateArticleRequest(
             request_user_id=request['context']['user_id'],
-            title=title if isinstance(title, str) else '',
-            description=description if isinstance(description, str) else '',
-            content=file_fields.file.read(),
+            title=request_dict.get('title', ''),
+            description=request_dict.get('description', ''),
+            content=request_dict.get('content', ''),
         ))
 
         return make_json_response(from_response(response_model))
@@ -98,23 +91,17 @@ class ArticleEntrypoint:
         return make_json_response(from_response(response_model))
 
     async def _update_article(self, request: web.Request) -> web.Response:
-        data = await request.post()
-        file_fields = data.get('article_file')
-        title = data.get('title', '')
-        description = data.get('description', '')
+        request_dict, invalid = await read_json(request)
+        if invalid is not None:
+            return make_json_response(from_response(invalid))
 
-        content: Optional[bytes]
-        if isinstance(file_fields, web_request.FileField):
-            content = file_fields.file.read()
-        else:
-            content = None
-
+        assert request_dict is not None
         response_model = await self._article_domain.article_service.update(UpdateArticleRequest(
             request_user_id=request['context']['user_id'],
             article_id=request.match_info['article_id'],
-            title=title if isinstance(title, str) else '',
-            description=description if isinstance(description, str) else '',
-            content=content,
+            title=request_dict.get('title', ''),
+            description=request_dict.get('description', ''),
+            content=request_dict.get('content', ''),
         ))
 
         return make_json_response(from_response(response_model))

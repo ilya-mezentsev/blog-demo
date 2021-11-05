@@ -1,4 +1,5 @@
 import datetime
+import logging
 from typing import Union
 from uuid import uuid4
 
@@ -11,6 +12,7 @@ from blog_demo_backend.domains.shared import (
     BaseService,
     IReader,
     ByUserId,
+    IntegrityError,
 )
 
 from ...spec import (
@@ -103,9 +105,14 @@ class CommentService(
             created=datetime.datetime.now(),
             modified=datetime.datetime.now(),
         )
-        await self._comment_repository.create(comment)
 
-        return CreateCommentResponse(comment)
+        try:
+            await self._comment_repository.create(comment)
+            return CreateCommentResponse(comment)
+        except IntegrityError:
+            logging.error(
+                f'Unable to create comment for article with id - {request.article_id}')
+            return NotFound('article-not-found')
 
     async def _do_read(
             self,

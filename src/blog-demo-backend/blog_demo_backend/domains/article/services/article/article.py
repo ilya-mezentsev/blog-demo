@@ -1,11 +1,9 @@
 import datetime
-import os.path
 from typing import Union
 from uuid import uuid4
 
 from blog_demo_backend.domains.article import Article
 from blog_demo_backend.domains.shared import (
-    Id,
     IRepository,
     IPermissionService,
     ServiceError,
@@ -18,7 +16,6 @@ from blog_demo_backend.domains.shared import (
 from ...spec import ArticleById
 
 from .request import *
-from .settings import ArticleSettings
 
 
 __all__ = [
@@ -40,7 +37,6 @@ class ArticleService(
 
     def __init__(
             self,
-            settings: ArticleSettings,
             article_repository: IRepository[Article, ArticleById],
             permission_service: IPermissionService,
             user_role_repository: IReader[str, ByUserId],
@@ -51,7 +47,6 @@ class ArticleService(
             user_role_repository=user_role_repository,
         )
 
-        self._settings = settings
         self._article_repository = article_repository
 
     async def _resource_id(
@@ -89,13 +84,11 @@ class ArticleService(
             author_id=request.request_user_id,
             title=request.title,
             description=request.description,
+            content=request.content,
             created=datetime.datetime.now(),
             modified=datetime.datetime.now(),
         )
         await self._article_repository.create(article)
-
-        with open(self._make_article_path(article.id), 'wb') as f:
-            f.write(request.content)
 
         return CreateArticleResponse(article)
 
@@ -149,12 +142,10 @@ class ArticleService(
         article.title = request.title
         article.description = request.description
         article.modified = datetime.datetime.now()
+        if request.content:
+            article.content = request.content
 
         await self._article_repository.update(article)
-
-        if request.content:
-            with open(self._make_article_path(article.id), 'wb') as f:
-                f.write(request.content)
 
         return UpdateArticleResponse(article)
 
@@ -170,12 +161,5 @@ class ArticleService(
             return NotFound('article-not-found')
 
         await self._article_repository.delete(article.id)
-        os.remove(self._make_article_path(article.id))
 
         return DeleteArticleResponse()
-
-    def _make_article_path(self, article_id: Id) -> str:
-        return os.path.join(
-            self._settings.articles_root_path,
-            article_id,
-        )

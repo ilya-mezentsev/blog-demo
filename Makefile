@@ -11,6 +11,7 @@ VENV_PIP := $(VENV_DIR)/bin/pip
 VENV_PYTHON = $(VENV_DIR)/bin/python
 VENV_MYPY := $(VENV_DIR)/bin/mypy
 VENV_FMT := $(VENV_DIR)/bin/autopep8
+VENV_LOCUST := $(VENV_DIR)/bin/locust
 
 ENTRYPOINT_FILE := $(BACKEND_DIR)/main.py
 INIT_TEST_DATA_FILE := $(BACKEND_DIR)/test_data.py
@@ -23,7 +24,7 @@ MAIN_CONFIG_PATH ?= $(CONFIG_DIR)/main.json
 DOCKER_COMPOSE_FILE := $(ROOT_DIR)/docker-compose.yaml
 DOCKER_COMPOSE_HL_FILE := $(ROOT_DIR)/docker-compose.hl.yaml
 
-ARTILLERY_CONFIG_FILE := $(SOURCE_FOLDER)/high-load/tests/artillery.yaml
+LOCUST_FILE := $(SOURCE_FOLDER)/high-load/tests/locustfile.py
 
 PG_SCHEMA_FILE := $(SOURCE_FOLDER)/schema/pg.sql
 
@@ -61,11 +62,11 @@ calc-lines:
 init-test-data: db-reset
 	$(VENV_PYTHON) $(INIT_TEST_DATA_FILE) --config-path $(MAIN_CONFIG_PATH)
 
-start-load-test:
-	artillery run $(ARTILLERY_CONFIG_FILE)
+start-load-test-master:
+	$(VENV_LOCUST) -f $(LOCUST_FILE) -H http://127.0.0.1:8888 --master
 
-db-run:
-	docker-compose -f $(DOCKER_COMPOSE_FILE) -p $(PROJECT_NAME) up db
+start-load-test-worker:
+	$(VENV_LOCUST) -f $(LOCUST_FILE) --worker
 
 db-reset:
 	cat $(PG_SCHEMA_FILE) | docker-compose -f $(DOCKER_COMPOSE_FILE) -p $(PROJECT_NAME) exec -T db psql -U blog_demo -d blog_demo

@@ -3,7 +3,6 @@ from typing import Mapping, Any
 import sqlalchemy as sa  # type: ignore
 
 from blog_demo_backend.db import get_table
-from blog_demo_backend.shared import DBConnectionFn
 from blog_demo_backend.domains.shared import IRepository, Id
 
 from ..models import Article
@@ -26,6 +25,7 @@ class ArticleRepository(IRepository[Article, ArticleById]):
             article_table.c.author_id: model.author_id,
             article_table.c.title: model.title,
             article_table.c.description: model.description,
+            article_table.c.content: model.content,
             article_table.c.created: model.created,
             article_table.c.modified: model.modified,
         }
@@ -39,6 +39,7 @@ class ArticleRepository(IRepository[Article, ArticleById]):
             author_id=article_row['author_id'],
             title=article_row['title'],
             description=article_row['description'],
+            content=article_row['content'],
             created=article_row['created'],
             modified=article_row['modified'],
         )
@@ -47,6 +48,7 @@ class ArticleRepository(IRepository[Article, ArticleById]):
         return {
             article_table.c.title: model.title,
             article_table.c.description: model.description,
+            article_table.c.content: model.content,
             article_table.c.modified: model.modified,
         }
 

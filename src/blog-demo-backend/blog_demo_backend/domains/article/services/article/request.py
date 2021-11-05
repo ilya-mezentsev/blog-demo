@@ -49,7 +49,7 @@ class GetArticleResponse(ReadResponse):
 class CreateArticleRequest(Requester):
     title: str
     description: str
-    content: bytes
+    content: str
 
 
 @dataclass
@@ -62,7 +62,7 @@ class UpdateArticleRequest(Requester):
     article_id: Id
     title: str
     description: str
-    content: Optional[bytes]
+    content: Optional[str]
 
 
 @dataclass

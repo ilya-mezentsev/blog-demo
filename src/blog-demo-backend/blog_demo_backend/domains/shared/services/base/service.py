@@ -81,11 +81,9 @@ class BaseService(
 
     async def create(self, request: CreateRequest) -> Union[CreateResponse, ServiceError]:
 
-        if not (await self._permission_service.has_permission(PermissionRequest(
-            role_id=(await self._get_user_role(request.request_user_id)),
-            resource_id=(await self._resource_id(request)),
+        if not (await self._permission_service.has_permission(await self._make_permission_request(
+            request=request,
             operation=Operation.CREATE,
-            version_id=(await self._permission_service.get_roles_version()),
         ))):
             return ForbiddenError('operation-not-permitted')
 
@@ -97,11 +95,9 @@ class BaseService(
 
     async def read(self, request: ReadRequest) -> Union[ReadResponse, ServiceError]:
 
-        if not (await self._permission_service.has_permission(PermissionRequest(
-            role_id=(await self._get_user_role(request.request_user_id)),
-            resource_id=(await self._resource_id(request)),
+        if not (await self._permission_service.has_permission(await self._make_permission_request(
+            request=request,
             operation=Operation.READ,
-            version_id=(await self._permission_service.get_roles_version()),
         ))):
             return ForbiddenError('operation-not-permitted')
 
@@ -113,11 +109,9 @@ class BaseService(
 
     async def update(self, request: UpdateRequest) -> Union[UpdateResponse, ServiceError]:
 
-        if not (await self._permission_service.has_permission(PermissionRequest(
-            role_id=(await self._get_user_role(request.request_user_id)),
-            resource_id=(await self._resource_id(request)),
+        if not (await self._permission_service.has_permission(await self._make_permission_request(
+            request=request,
             operation=Operation.UPDATE,
-            version_id=(await self._permission_service.get_roles_version()),
         ))):
             return ForbiddenError('operation-not-permitted')
 
@@ -129,11 +123,9 @@ class BaseService(
 
     async def delete(self, request: DeleteRequest) -> Union[DeleteResponse, ServiceError]:
 
-        if not (await self._permission_service.has_permission(PermissionRequest(
-            role_id=(await self._get_user_role(request.request_user_id)),
-            resource_id=(await self._resource_id(request)),
+        if not (await self._permission_service.has_permission(await self._make_permission_request(
+            request=request,
             operation=Operation.DELETE,
-            version_id=(await self._permission_service.get_roles_version()),
         ))):
             return ForbiddenError('operation-not-permitted')
 
@@ -142,6 +134,24 @@ class BaseService(
     @abstractmethod
     async def _do_delete(self, request: DeleteRequest) -> Union[DeleteResponse, ServiceError]:
         raise NotImplementedError()
+
+    async def _make_permission_request(
+            self,
+            request: Union[
+                CreateRequest,
+                ReadRequest,
+                UpdateRequest,
+                DeleteRequest,
+            ],
+            operation: Operation,
+    ) -> PermissionRequest:
+
+        return PermissionRequest(
+            role_id=(await self._get_user_role(request.request_user_id)),
+            resource_id=(await self._resource_id(request)),
+            operation=operation,
+            version_id=(await self._permission_service.get_roles_version()),
+        )
 
     async def _get_user_role(self, user_id: Optional[Id]) -> str:
         if user_id is None:
