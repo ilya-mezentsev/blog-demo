@@ -33,7 +33,6 @@ async def _prepare_domains_and_settings(
     )
 
     article_domain = ArticleDomain(
-        article_settings=config.article_settings(),
         connection_fn=db_connector,
         permission_service=permission_service,
         user_role_repository=user_role_repository,

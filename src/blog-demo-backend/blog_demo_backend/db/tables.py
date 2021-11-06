@@ -5,6 +5,7 @@ from sqlalchemy import (  # type: ignore
     ForeignKey,
     Integer,
     VARCHAR,
+    TEXT,
     DateTime,
     Enum,
     text,
@@ -39,6 +40,7 @@ Table(
     Column('author_id', VARCHAR(36), ForeignKey('user.uuid')),
     Column('title', VARCHAR(256), nullable=False),
     Column('description', VARCHAR(1024), nullable=False),
+    Column('content', TEXT(), nullable=False),
     Column('created', DateTime, nullable=False, server_default=text('NOW()')),
     Column('modified', DateTime, nullable=False, server_default=text('NOW()')),
 )

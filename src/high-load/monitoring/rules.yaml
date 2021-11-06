@@ -1,10 +1,48 @@
 groups:
-  - name: example
+  - name: regular-load
+    rules:
+      - alert: RegularRequestLatency
+        expr: >
+          avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) /
+          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) > 0 < 0.7
+        labels:
+          severity: regular
+        annotations:
+          summary: Regular request latency
+          request_latency_seconds: "{{ $value }}"
+
+  - name: medium-load
+    rules:
+      - alert: MediumRequestLatency
+        expr: >
+          avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) /
+          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) >= 0.7 < 1.4
+        labels:
+          severity: medium
+        annotations:
+          summary: Medium request latency
+          request_latency_seconds: "{{ $value }}"
+
+  - name: high-load
     rules:
       - alert: HighRequestLatency
-        expr: avg(avg_over_time(request_processing_seconds_sum{app_name="blog-demo-api"}[1m]) / avg_over_time(request_processing_seconds_count{app_name="blog-demo-api"}[1m])) > 0
+        expr: >
+          avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) /
+          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) >= 1.4 < 2.1
+        labels:
+          severity: high
+        annotations:
+          summary: High request latency
+          request_latency_seconds: "{{ $value }}"
+
+  - name: critical-load
+    rules:
+      - alert: CriticalRequestLatency
+        expr: >
+          avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) /
+          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) >= 2.1
         labels:
           severity: critical
         annotations:
-          summary: High request latency
+          summary: Critical request latency
           request_latency_seconds: "{{ $value }}"

@@ -15,5 +15,6 @@ class Article:
     author_id: Id
     title: str
     description: str
+    content: str
     created: datetime.datetime
     modified: datetime.datetime

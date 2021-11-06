@@ -3,7 +3,6 @@ from typing import Mapping, Any
 
 from blog_demo_backend.db import DBSettings
 from blog_demo_backend.domains import (
-    ArticleSettings,
     PermissionSettings,
     LoadLevel,
 )
@@ -15,7 +14,6 @@ class Config:
     _REQUIRED_KEYS = {
         'db',
         'server',
-        'files',
         'permission_service',
     }
 
@@ -42,11 +40,6 @@ class Config:
             port=self._config_dict['db']['port'],
             pool_timeout=self._config_dict['db']['pool_timeout'],
             echo=self._config_dict['db']['echo'],
-        )
-
-    def article_settings(self) -> ArticleSettings:
-        return ArticleSettings(
-            articles_root_path=self._config_dict['files']['articles_root_path'],
         )
 
     def permission_settings(self) -> PermissionSettings:

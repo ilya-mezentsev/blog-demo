@@ -7,7 +7,6 @@ from typing import (
 import sqlalchemy as sa  # type: ignore
 
 from blog_demo_backend.db import get_table
-from blog_demo_backend.shared import DBConnectionFn
 from blog_demo_backend.domains.shared import IRepository, Id
 
 from ..models import Comment

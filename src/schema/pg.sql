@@ -32,6 +32,7 @@ CREATE TABLE blog_demo.article (
     author_id VARCHAR(36) REFERENCES blog_demo.user(uuid) ON DELETE SET NULL,
     title VARCHAR(256) NOT NULL,
     description VARCHAR(1024) NOT NULL,
+    content TEXT NOT NULL,
     created TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW() NOT NULL,
     modified TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW() NOT NULL,
     PRIMARY KEY (uuid),

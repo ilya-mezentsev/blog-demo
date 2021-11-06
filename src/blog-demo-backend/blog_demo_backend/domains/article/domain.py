@@ -6,7 +6,6 @@ from blog_demo_backend.domains.shared import (
     MemoryCache,
 )
 from blog_demo_backend.domains.article import (
-    ArticleSettings,
     ArticleRepository,
     ArticleService,
     CommentService,
@@ -23,7 +22,6 @@ class ArticleDomain:
 
     def __init__(
             self,
-            article_settings: ArticleSettings,
             connection_fn: DBConnectionFn,
             permission_service: IPermissionService,
             user_role_repository: IReader[str, ByUserId],
@@ -38,7 +36,6 @@ class ArticleDomain:
         )
 
         self.article_service = ArticleService(
-            settings=article_settings,
             article_repository=article_repository,
             permission_service=permission_service,
             user_role_repository=user_role_repository,

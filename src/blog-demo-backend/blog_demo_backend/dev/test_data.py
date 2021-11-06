@@ -1,6 +1,4 @@
 import datetime
-import glob
-import os.path
 from typing import Sequence
 from uuid import uuid4
 
@@ -36,17 +34,13 @@ async def init_test_data(config: Config) -> None:
 
     users = await _init_users(
         user_repository=UserRepository(db_connector, MemoryCache()),
-        session_repository=UserSessionRepository(
-            db_connector, MemoryCache()),
+        session_repository=UserSessionRepository(db_connector, MemoryCache()),
     )
 
     await _init_articles(
         users=users,
-        article_repository=ArticleRepository(
-            db_connector, MemoryCache()),
-        comment_repository=CommentRepository(
-            db_connector, MemoryCache()),
-        articles_root_path=config.article_settings().articles_root_path,
+        article_repository=ArticleRepository(db_connector, MemoryCache()),
+        comment_repository=CommentRepository(db_connector, MemoryCache()),
     )
 
 
@@ -64,7 +58,7 @@ async def _init_users(
             created=now,
             modified=now,
         )
-        for i in range(0, 100)
+        for i in range(100)
     ]
 
     user_creation_coroutines = [
@@ -84,7 +78,7 @@ async def _init_users(
             created=now,
             modified=now,
         )
-        for i in range(0, 10)
+        for i in range(10)
     ]
 
     moderator_creation_coroutines = [
@@ -114,7 +108,6 @@ async def _init_articles(
         users: Sequence[User],
         article_repository: ArticleRepository,
         comment_repository: CommentRepository,
-        articles_root_path: str,
 ) -> None:
 
     now = datetime.datetime.now()
@@ -123,8 +116,8 @@ async def _init_articles(
     comments = []
 
     # Первым десяти пользователям добавим в авторство по 10 статей
-    for user_index in range(0, 10):
-        for _ in range(0, 10):
+    for user_index in range(10):
+        for _ in range(10):
             articles.append(_make_article(
                 author_id=users[user_index].id,
                 now=now,
@@ -132,7 +125,7 @@ async def _init_articles(
 
     # Следующей десятке добавим в авторство по 20 статей
     for user_index in range(10, 20):
-        for _ in range(0, 20):
+        for _ in range(20):
             articles.append(_make_article(
                 author_id=users[user_index].id,
                 now=now,
@@ -140,7 +133,7 @@ async def _init_articles(
 
     # Третий десяток получает по 30 статей в авторство
     for user_index in range(20, 30):
-        for _ in range(0, 30):
+        for _ in range(30):
             articles.append(_make_article(
                 author_id=users[user_index].id,
                 now=now,
@@ -158,15 +151,8 @@ async def _init_articles(
                 modified=now,
             ))
 
-    article_db_creation_coroutines = [
+    article_creation_coroutines = [
         article_repository.create(article)
-        for article in articles
-    ]
-    article_fs_creation_coroutines = [
-        _create_article_file(
-            article_filename=article.id,
-            articles_root_path=articles_root_path,
-        )
         for article in articles
     ]
     comment_creation_coroutines = [
@@ -174,10 +160,7 @@ async def _init_articles(
         for comment in comments
     ]
 
-    await _check_articles_path(articles_root_path)
-    await asyncio.gather(*article_db_creation_coroutines)
-    await asyncio.gather(*article_fs_creation_coroutines)
-    await _create_articles_for_tests(articles_root_path)
+    await asyncio.gather(*article_creation_coroutines)
     await asyncio.gather(*comment_creation_coroutines)
 
 
@@ -187,53 +170,7 @@ def _make_article(author_id: Id, now: datetime.datetime) -> Article:
         author_id=author_id,
         title=lorem.sentence(),
         description=lorem.paragraph(),
+        content='\n\n'.join(lorem.paragraph() for _ in range(3)),
         created=now,
         modified=now,
     )
-
-
-async def _check_articles_path(articles_root_path: str) -> None:
-    if not os.path.exists(articles_root_path):
-        os.mkdir(
-            path=articles_root_path,
-            mode=0o777,
-        )
-    else:
-        files = glob.glob(os.path.join(articles_root_path, '*'))
-        for file in files:
-            os.remove(file)
-
-
-async def _create_article_file(
-        article_filename: str,
-        articles_root_path: str,
-) -> None:
-
-    assert os.path.exists(articles_root_path)
-
-    content = ''
-    for _ in range(0, 3):
-        content += f'{lorem.text()}\n\n'
-
-    with open(os.path.join(
-        articles_root_path,
-        article_filename,
-    ), 'w') as f:
-        f.write(content)
-
-
-async def _create_articles_for_tests(articles_root_path: str) -> None:
-    """
-    В данной функции создаем файлики,
-    которые будут использоваться для создания статей в процессе нагрузочного тестирования
-    """
-
-    article_for_test_creation_coroutines = [
-        _create_article_file(
-            article_filename=f'for_test_{i}.txt',
-            articles_root_path=articles_root_path,
-        )
-        for i in range(0, 10)
-    ]
-
-    await asyncio.gather(*article_for_test_creation_coroutines)

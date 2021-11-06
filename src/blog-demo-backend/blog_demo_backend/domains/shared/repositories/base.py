@@ -9,8 +9,10 @@ from typing import (
 )
 
 import sqlalchemy as sa  # type: ignore
+from sqlalchemy.exc import IntegrityError as DBIntegrityError  # type: ignore
 
 from blog_demo_backend.shared import DBConnectionFn
+from blog_demo_backend.domains.shared import IntegrityError
 
 from ..cache import ICache
 from ..spec import BaseSpec
@@ -58,8 +60,11 @@ class ICreator(
             insert(). \
             values(self._make_create_mapping(model))
 
-        async with self._connection_fn() as conn:
-            await conn.execute(query)
+        try:
+            async with self._connection_fn() as conn:
+                await conn.execute(query)
+        except DBIntegrityError:
+            raise IntegrityError()
 
         await self._cache.on_data_changed()
 

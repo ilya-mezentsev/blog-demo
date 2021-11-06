@@ -26,6 +26,7 @@ from .model import ResponseModel
 __all__ = [
     'from_response',
     'session_response',
+    'empty_session_response',
     'server_error',
     'unauthorized_error',
 ]
@@ -108,6 +109,15 @@ def session_response(response: Union[
 
     else:
         return _from_error(response)
+
+
+def empty_session_response() -> ResponseModel:
+    return ResponseModel(
+        http_status=web.HTTPNoContent.status_code,
+        cookies={
+            'BLOG_DEMO_SESSION_KEY': '',
+        },
+    )
 
 
 def unauthorized_error(description: str) -> ResponseModel:

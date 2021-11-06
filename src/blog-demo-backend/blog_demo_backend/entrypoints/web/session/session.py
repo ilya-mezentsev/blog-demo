@@ -8,6 +8,7 @@ from blog_demo_backend.domains.user import (
 from ..shared import (
     from_response,
     session_response,
+    empty_session_response,
     make_json_response,
     read_json,
 )
@@ -32,6 +33,7 @@ class UserSessionEntrypoint:
 
         app.add_routes([
             web.post(r'', self._create_session),
+            web.delete(r'', self._delete_session),
         ])
 
         return app
@@ -48,3 +50,7 @@ class UserSessionEntrypoint:
         ))
 
         return make_json_response(session_response(response_model))
+
+    @staticmethod
+    async def _delete_session(_: web.Request) -> web.Response:
+        return make_json_response(empty_session_response())
