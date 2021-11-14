@@ -37,6 +37,6 @@ $ docker stats
 ```
 
 * Prometheus exported metrics is available here - localhost:9090; examples:
-  * avg(request_processing_seconds_sum{app_name='blog-demo-api'} / request_processing_seconds_count{app_name='blog-demo-api'})
-  * max(request_processing_seconds_sum{app_name='blog-demo-api'} / request_processing_seconds_count{app_name='blog-demo-api'})
-  * avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) / avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s]))
+  * ```avg(request_processing_seconds_sum{app_name='blog-demo-api'} / request_processing_seconds_count{app_name='blog-demo-api'})```
+  * ```max(request_processing_seconds_sum{app_name='blog-demo-api'} / request_processing_seconds_count{app_name='blog-demo-api'})```
+  * ```avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) / avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s]))```
