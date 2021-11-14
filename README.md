@@ -27,10 +27,9 @@ $ make init-test-data
 $ make containers-hl-run
 ```
 
-* Run high load tests (required [artillery](https://artillery.io/) to be installed):
-```bash
-$ make start-load-test
-```
+* Run high load tests:
+  * Master - ```$ make start-load-test-master```
+  * Worker (can be started [multiple times](http://docs.locust.io/en/stable/running-locust-distributed.html)) - ```$ make start-load-test-worker```
 
 * Watch containers stats:
 ```bash
@@ -40,4 +39,4 @@ $ docker stats
 * Prometheus exported metrics is available here - localhost:9090; examples:
   * avg(request_processing_seconds_sum{app_name='blog-demo-api'} / request_processing_seconds_count{app_name='blog-demo-api'})
   * max(request_processing_seconds_sum{app_name='blog-demo-api'} / request_processing_seconds_count{app_name='blog-demo-api'})
-  * avg(avg_over_time(request_processing_seconds_sum{app_name="blog-demo-api"}[1m]) / avg_over_time(request_processing_seconds_count{app_name="blog-demo-api"}[1m]))
+  * avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) / avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s]))
