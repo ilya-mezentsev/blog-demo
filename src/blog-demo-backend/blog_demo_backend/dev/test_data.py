@@ -18,7 +18,7 @@ from blog_demo_backend.domains import (
     Article,
     Comment,
     Id,
-    MemoryCache,
+    CacheMiss,
 )
 from blog_demo_backend.settings import Config
 
@@ -33,14 +33,14 @@ async def init_test_data(config: Config) -> None:
     db_connector = await make_db_connector(config.db_settings())
 
     users = await _init_users(
-        user_repository=UserRepository(db_connector, MemoryCache()),
-        session_repository=UserSessionRepository(db_connector, MemoryCache()),
+        user_repository=UserRepository(db_connector, CacheMiss()),
+        session_repository=UserSessionRepository(db_connector, CacheMiss()),
     )
 
     await _init_articles(
         users=users,
-        article_repository=ArticleRepository(db_connector, MemoryCache()),
-        comment_repository=CommentRepository(db_connector, MemoryCache()),
+        article_repository=ArticleRepository(db_connector, CacheMiss()),
+        comment_repository=CommentRepository(db_connector, CacheMiss()),
     )
 
 

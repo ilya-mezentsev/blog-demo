@@ -19,6 +19,9 @@
       "password": "bd_password"
     }
   },
+  "message_broker": {
+    "host": "message-broker"
+  },
   "permission_service": {
     "permission_resolver_url": "http://permission-service:8080/permissions",
     "request_timeout": 5,

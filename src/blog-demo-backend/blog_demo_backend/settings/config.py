@@ -7,6 +7,7 @@ from blog_demo_backend.domains import (
     LoadLevel,
 )
 from blog_demo_backend.entrypoints import WebEntrypointSettings, BasicAuthSettings
+from blog_demo_backend.message_broker import MessageBrokerConfig
 
 
 class Config:
@@ -14,6 +15,7 @@ class Config:
     _REQUIRED_KEYS = {
         'db',
         'server',
+        'message_broker',
         'permission_service',
     }
 
@@ -40,6 +42,11 @@ class Config:
             port=self._config_dict['db']['port'],
             pool_timeout=self._config_dict['db']['pool_timeout'],
             echo=self._config_dict['db']['echo'],
+        )
+
+    def message_broker(self) -> MessageBrokerConfig:
+        return MessageBrokerConfig(
+            host=self._config_dict['message_broker']['host']
         )
 
     def permission_settings(self) -> PermissionSettings:

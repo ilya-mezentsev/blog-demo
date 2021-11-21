@@ -18,6 +18,10 @@ class ICache(metaclass=ABCMeta):
         raise NotImplementedError()
 
     @abstractmethod
+    async def reset_cache(self) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
     async def get_cached(
             self,
             method: str,
@@ -26,7 +30,7 @@ class ICache(metaclass=ABCMeta):
         """
         Возвращает кортеж, где
             * первый элемент - это значение из кеша, если есть
-            * второй элемент - удалось ли это хначение найти
+            * второй элемент - удалось ли это значение найти
         """
 
         raise NotImplementedError()

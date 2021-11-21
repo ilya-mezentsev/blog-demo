@@ -10,24 +10,34 @@ services:
     deploy:
       resources:
         limits:
-          memory: 600M
+          memory: 750M
         reservations:
           memory: 100m
-    ports:
-      - "8888:8888"
+    expose:
+      - "8888"
     volumes:
       - ./:/var/www
       - /tmp/blog_demo:/tmp/blog_demo
     links:
       - db
+      - message-broker
       - permission-service
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./src/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+    ports:
+      - "4000:4000"
 
   alertmanager:
     build:
       context: ./src/high-load/alerting/
       dockerfile: alertmanager.Dockerfile
     command:
-      - '--config.file=/etc/prometheus/alertmanager.yaml'
+      - "--config.file=/etc/prometheus/alertmanager.yaml"
     ports:
       - "9093:9093"
     depends_on:
@@ -38,7 +48,7 @@ services:
       context: ./src/high-load/monitoring/
       dockerfile: prometheus.Dockerfile
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
+      - "--config.file=/etc/prometheus/prometheus.yaml"
     ports:
       - "9090:9090"
     depends_on:
