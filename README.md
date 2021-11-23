@@ -12,7 +12,7 @@ $ git clone https://github.com/ilya-mezentsev/blog-demo.git && cd blog-demo
 $ make containers-build
 ```
 
-* Run DB and permission service containers:
+* Run DB, redis and permission service containers:
 ```bash
 $ make containers-run
 ```
@@ -23,9 +23,8 @@ $ make init-test-data
 ```
 
 * Run API container:
-```bash
-$ make containers-hl-run
-```
+  * Single node - ```$ make containers-hl-run``` or
+  * Three nodes - ```$ make containers-hl-run-scaled``` (prometheus metrics are not available here)
 
 * Run high load tests:
   * Master - ```$ make start-load-test-master```
