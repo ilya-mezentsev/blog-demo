@@ -20,7 +20,6 @@ DEFAULT_PASSWORD = 'password'
 
 exits_users_nicknames = [f'user_{i}' for i in range(100)]
 exits_moderators_nicknames = [f'moderator_{i}' for i in range(10)]
-exists_articles_paths = []
 
 
 class AnonymousUser(FastHttpUser):

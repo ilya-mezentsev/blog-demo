@@ -63,7 +63,7 @@ init-test-data: db-reset
 	$(VENV_PYTHON) $(INIT_TEST_DATA_FILE) --config-path $(MAIN_CONFIG_PATH)
 
 start-load-test-master:
-	$(VENV_LOCUST) -f $(LOCUST_FILE) -H http://127.0.0.1:8888 --master
+	$(VENV_LOCUST) -f $(LOCUST_FILE) -H http://127.0.0.1:4000 --master
 
 start-load-test-worker:
 	$(VENV_LOCUST) -f $(LOCUST_FILE) --worker
@@ -78,7 +78,18 @@ containers-run:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) -p $(PROJECT_NAME) up
 
 containers-hl-run:
-	docker-compose -f $(DOCKER_COMPOSE_FILE) -f $(DOCKER_COMPOSE_HL_FILE) -p $(PROJECT_NAME) up backend alertmanager prometheus
+	docker-compose \
+		-f $(DOCKER_COMPOSE_FILE) \
+		-f $(DOCKER_COMPOSE_HL_FILE) \
+		-p $(PROJECT_NAME) \
+		up backend nginx alertmanager prometheus
+
+containers-hl-run-scaled:
+	docker-compose \
+		-f $(DOCKER_COMPOSE_FILE) \
+		-f $(DOCKER_COMPOSE_HL_FILE) \
+		-p $(PROJECT_NAME) \
+		up --scale backend=3 backend nginx
 
 containers-clean:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) -f $(DOCKER_COMPOSE_HL_FILE) -p $(PROJECT_NAME) down

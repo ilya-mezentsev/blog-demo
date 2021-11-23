@@ -3,8 +3,8 @@ groups:
     rules:
       - alert: RegularRequestLatency
         expr: >
-          avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) /
-          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) > 0 < 0.7
+          avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) /
+          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) > 0 < 0.7
         labels:
           severity: regular
         annotations:
@@ -15,8 +15,8 @@ groups:
     rules:
       - alert: MediumRequestLatency
         expr: >
-          avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) /
-          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) >= 0.7 < 1.4
+          avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) /
+          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) >= 0.7 < 1.4
         labels:
           severity: medium
         annotations:
@@ -27,8 +27,8 @@ groups:
     rules:
       - alert: HighRequestLatency
         expr: >
-          avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) /
-          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) >= 1.4 < 2.1
+          avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) /
+          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) >= 1.4 < 2.1
         labels:
           severity: high
         annotations:
@@ -39,8 +39,8 @@ groups:
     rules:
       - alert: CriticalRequestLatency
         expr: >
-          avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) /
-          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[10s])) >= 2.1
+          avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) /
+          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) >= 2.1
         labels:
           severity: critical
         annotations:
