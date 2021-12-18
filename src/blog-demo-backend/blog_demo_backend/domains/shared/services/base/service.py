@@ -163,6 +163,5 @@ class BaseService(
 
         if isinstance(role_id, str):
             return role_id
-
         else:
             return self._GUEST_ROLE

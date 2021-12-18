@@ -30,6 +30,8 @@ PG_SCHEMA_FILE := $(SOURCE_FOLDER)/schema/pg.sql
 
 PROJECT_NAME := blog_demo
 
+BACKEND_NODES_COUNT ?= 5
+
 run:
 	$(VENV_PYTHON) $(ENTRYPOINT_FILE) --config-path $(MAIN_CONFIG_PATH) --logging-level warning
 
@@ -89,7 +91,7 @@ containers-hl-run-scaled:
 		-f $(DOCKER_COMPOSE_FILE) \
 		-f $(DOCKER_COMPOSE_HL_FILE) \
 		-p $(PROJECT_NAME) \
-		up --scale backend=3 backend nginx
+		up --scale backend=$(BACKEND_NODES_COUNT) backend nginx
 
 containers-clean:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) -f $(DOCKER_COMPOSE_HL_FILE) -p $(PROJECT_NAME) down

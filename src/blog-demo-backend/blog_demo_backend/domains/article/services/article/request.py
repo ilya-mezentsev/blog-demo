@@ -38,10 +38,6 @@ class GetArticleRequest(Requester):
 
 @dataclass
 class GetArticleResponse(ReadResponse):
-    """
-    Предполагается, что контент статьи будет отдавать НЕ приложение (например, Nginx)
-    """
-
     article: Article
 
 
