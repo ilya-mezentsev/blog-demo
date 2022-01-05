@@ -4,7 +4,7 @@ groups:
       - alert: RegularRequestLatency
         expr: >
           avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) /
-          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) > 0 < 0.7
+          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) > 0 < 0.2
         labels:
           severity: regular
         annotations:
@@ -16,7 +16,7 @@ groups:
       - alert: MediumRequestLatency
         expr: >
           avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) /
-          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) >= 0.7 < 1.4
+          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) >= 0.2 < 0.7
         labels:
           severity: medium
         annotations:
@@ -28,7 +28,7 @@ groups:
       - alert: HighRequestLatency
         expr: >
           avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) /
-          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) >= 1.4 < 2.1
+          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) >= 0.7 < 1.2
         labels:
           severity: high
         annotations:
@@ -40,7 +40,7 @@ groups:
       - alert: CriticalRequestLatency
         expr: >
           avg(rate(request_processing_seconds_sum{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) /
-          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) >= 2.1
+          avg(rate(request_processing_seconds_count{app_name="blog-demo-api", endpoint!~"/alert|/metrics"}[30s])) >= 1.2
         labels:
           severity: critical
         annotations:

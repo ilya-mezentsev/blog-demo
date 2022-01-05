@@ -7,7 +7,7 @@ route:
 receivers:
   - name: "request-latency-receiver"
     webhook_configs:
-      - url: "http://backend:8888/alert"
+      - url: "http://nginx:4000/alert"
         http_config:
           basic_auth:
             username: "blog-demo-internal-user"

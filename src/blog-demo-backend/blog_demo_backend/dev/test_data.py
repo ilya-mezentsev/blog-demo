@@ -3,10 +3,16 @@ from typing import Sequence
 from uuid import uuid4
 
 import asyncio
-
 import lorem  # type: ignore
 
-from blog_demo_backend.db import make_db_connector
+from sqlalchemy import (  # type: ignore
+    exists,
+    select,
+    text,
+)
+from sqlalchemy.schema import DropSchema, CreateSchema  # type: ignore
+
+from blog_demo_backend.db import make_db_connector, blog_tables
 from blog_demo_backend.domains import (
     ArticleRepository,
     CommentRepository,
@@ -25,7 +31,35 @@ from blog_demo_backend.settings import Config
 
 __all__ = [
     'init_test_data',
+    'reset_schema',
 ]
+
+
+async def reset_schema(config: Config) -> None:
+    db_settings = config.db_settings()
+    db_connector = await make_db_connector(db_settings)
+
+    q = select(
+        exists(
+            select([
+                text('schema_name'),
+            ]).
+            select_from(text('information_schema.schemata')).
+            where(text(f'schema_name = \'{db_settings.schema_name}\''))
+        )
+    )
+
+    async with db_connector() as conn:
+        if (await conn.execute(q)).scalar():
+            await conn.execute(DropSchema(
+                name=db_settings.schema_name,
+                cascade=True,
+            ))
+
+        await conn.execute(CreateSchema(db_settings.schema_name))
+
+        await conn.run_sync(blog_tables.drop_all)
+        await conn.run_sync(blog_tables.create_all)
 
 
 async def init_test_data(config: Config) -> None:
