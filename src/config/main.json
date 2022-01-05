@@ -8,7 +8,7 @@
     "schema_name": "blog_demo",
     "host": "localhost",
     "port": 5555,
-    "pool_timeout": 60,
+    "pool_timeout": 70,
     "echo": false
   },
   "server": {

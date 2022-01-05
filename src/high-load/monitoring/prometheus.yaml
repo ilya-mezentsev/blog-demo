@@ -32,4 +32,4 @@ scrape_configs:
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
     static_configs:
-        - targets: ["backend:8888"]
+        - targets: ["nginx:4000"]
